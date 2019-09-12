@@ -46,7 +46,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${N2MREPO}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
    chmod 700 /usr/local/bin/start-sabnzbd.sh && \
    apk del --no-progress --purge build-deps && \
-   rm -rv "/shared" "/root/.cache" && \
+   rm -rv "/shared" "/root/.cache/pip" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \

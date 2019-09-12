@@ -51,4 +51,5 @@ LaunchSABnzbd(){
 Initialise
 CreateGroup
 CreateUser
+SetOwnerAndGroup
 LaunchSABnzbd
