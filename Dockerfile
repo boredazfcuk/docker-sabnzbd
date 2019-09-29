@@ -2,7 +2,7 @@ FROM alpine:latest
 MAINTAINER boredazfcuk
 ENV SABBASE="/SABnzbd" \
    N2MBASE="/nzbToMedia" \
-   BUILDDEPENDENCIES="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make" \
+   BUILDDEPENDENCIES="gcc python-dev musl-dev libffi-dev libgomp openssl-dev automake autoconf g++ make" \
 	APPDEPENDENCIES="git python python3 py-pip tzdata unrar unzip p7zip ffmpeg" \
    SABPYTHONDEPENDENCIES="cheetah3 cryptography sabyenc" \
 	CONFIGDIR="/config" \
@@ -45,7 +45,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${N2MREPO}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
    chmod +x /usr/local/bin/start-sabnzbd.sh && \
    apk del --no-progress --purge build-deps && \
-   rm -rv "/shared" "/root/.cache/pip" && \
+   rm -rv "/shared" "/root/.cache/pip" "${TEMP}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \
