@@ -26,10 +26,9 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${SABREPO} python dependencies" &
    pip install --no-cache-dir --upgrade pip && \
    pip install --no-cache-dir ${SABPYTHONDEPENDENCIES} && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${PARREPO}" && \
-   TEMP=$(mktemp -d) && \
-   echo "Temp: ${TEMP}" && \
+   TEMP="$(mktemp -d)" && \
    git clone -b master "https://github.com/${PARREPO}.git" "${TEMP}" && \
-   cd ${TEMP} && \
+   cd "${TEMP}" && \
    aclocal && \
    automake --add-missing && \
    autoconf && \
@@ -44,13 +43,13 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${N2MREPO}" && \
    touch "/shared/autoProcessMedia.cfg" && \
    ln -s "/shared/autoProcessMedia.cfg" "${N2MBASE}/autoProcessMedia.cfg" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
-   chmod 700 /usr/local/bin/start-sabnzbd.sh && \
+   chmod +x /usr/local/bin/start-sabnzbd.sh && \
    apk del --no-progress --purge build-deps && \
    rm -rv "/shared" "/root/.cache/pip" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \
-   CMD wget --quiet --tries=1 --spider http://${HOSTNAME}:8080/sabnzbd || exit 1
+   CMD wget --quiet --tries=1 --spider "http://${HOSTNAME}:8080/sabnzbd" || exit 1
 
 VOLUME "${CONFIGDIR}"
 
