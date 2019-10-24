@@ -2,8 +2,8 @@ FROM alpine:latest
 MAINTAINER boredazfcuk
 ENV SABBASE="/SABnzbd" \
    N2MBASE="/nzbToMedia" \
-   BUILDDEPENDENCIES="gcc python-dev musl-dev libffi-dev libgomp openssl-dev automake autoconf g++ make" \
-	APPDEPENDENCIES="git python python3 py-pip tzdata unrar unzip p7zip ffmpeg" \
+   BUILDDEPENDENCIES="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make" \
+	APPDEPENDENCIES="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg" \
    SABPYTHONDEPENDENCIES="cheetah3 cryptography sabyenc" \
 	CONFIGDIR="/config" \
 	SABREPO="sabnzbd/sabnzbd" \
@@ -36,21 +36,15 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${PARREPO}" && \
    make && \
    make check && \
    make install && \
-echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${N2MREPO}" && \
-   cd "${N2MBASE}" && \
-   git clone -b master "https://github.com/${N2MREPO}.git" "${N2MBASE}" && \
-   mkdir /shared && \
-   touch "/shared/autoProcessMedia.cfg" && \
-   ln -s "/shared/autoProcessMedia.cfg" "${N2MBASE}/autoProcessMedia.cfg" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
    chmod +x /usr/local/bin/start-sabnzbd.sh && \
    apk del --no-progress --purge build-deps && \
-   rm -rv "/shared" "/root/.cache/pip" "${TEMP}" && \
+   rm -rv "/root/.cache/pip" "${TEMP}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \
    CMD wget --quiet --tries=1 --spider "http://${HOSTNAME}:8080/sabnzbd" || exit 1
 
-VOLUME "${CONFIGDIR}"
+VOLUME "${CONFIGDIR}" "/shared"
 
 CMD /usr/local/bin/start-sabnzbd.sh
