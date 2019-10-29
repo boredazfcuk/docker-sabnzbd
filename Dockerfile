@@ -25,6 +25,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${SABREPO} python dependencies" &
    cd "${SABBASE}" && \
    pip install --no-cache-dir --upgrade pip && \
    pip install --no-cache-dir ${SABPYTHONDEPENDENCIES} && \
+   "${SABBASE}/tools/make_mo.py" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${PARREPO}" && \
    TEMP="$(mktemp -d)" && \
    git clone -b master "https://github.com/${PARREPO}.git" "${TEMP}" && \

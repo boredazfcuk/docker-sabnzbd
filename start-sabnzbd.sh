@@ -37,6 +37,9 @@ CreateUser(){
 }
 
 SetOwnerAndGroup(){
+   DIRSCANDIR="$(grep dirscan_dir "${CONFIGDIR}/sabnzbd.ini" | awk '{print $3}')"
+   DOWNLOADDIR="$(grep download_dir "${CONFIGDIR}/sabnzbd.ini" | awk '{print $3}')"
+   COMPLETEDIR="$(grep complete_dir "${CONFIGDIR}/sabnzbd.ini" | awk '{print $3}')"
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Correct owner and group of syncronised files, if required"
    find "${CONFIGDIR}" ! -user "${USER}" -exec chown "${USER}" {} \;
    find "${CONFIGDIR}" ! -group "${GROUP}" -exec chgrp "${GROUP}" {} \;
@@ -44,6 +47,15 @@ SetOwnerAndGroup(){
    find "${SABBASE}" ! -group "${GROUP}" -exec chgrp "${GROUP}" {} \;
    find "${N2MBASE}" ! -user "${USER}" -exec chown "${USER}" {} \;
    find "${N2MBASE}" ! -group "${GROUP}" -exec chgrp "${GROUP}" {} \;
+   if [ ! -z "${DIRSCANDIR}" ] && [ -d "${DIRSCANDIR}" ]; then
+      find "${DIRSCANDIR}" -type d ! -user "${USER}" -exec chown "${USER}" {} \;
+   fi
+   if [ ! -z "${DOWNLOADDIR}" ] && [ -d "${DOWNLOADDIR}" ]; then
+      find "${DOWNLOADDIR}" -type d ! -user "${USER}" -exec chown "${USER}" {} \;
+   fi
+   if [ ! -z "${COMPLETEDIR}" ] && [ -d "${COMPLETEDIR}" ]; then
+      find "${COMPLETEDIR}"  -type d ! -user "${USER}" -exec chown "${USER}" {} \;
+   fi
 }
 
 InstallnzbToMedia(){
