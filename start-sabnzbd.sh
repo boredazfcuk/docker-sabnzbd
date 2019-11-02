@@ -39,7 +39,7 @@ Initialise(){
    sed -i "s%^${SABNZBDCERT}$%https_cert = ${CONFIGDIR}/https/sabnzbd.crt%" "${CONFIGDIR}/sabnzbd.ini"
 
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use HTTPS"
-   SABNZBDHTTPS="$(sed -nr '/\[nisc\]/,/\[/{/^enable_https =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+   SABNZBDHTTPS="$(sed -nr '/\[misc\]/,/\[/{/^enable_https =/p}' "${CONFIGDIR}/sabnzbd.ini")"
    sed -i "s%^${SABNZBDHTTPS}$%enable_https = 1%" "${CONFIGDIR}/sabnzbd.ini"
 
 }
