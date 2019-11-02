@@ -14,6 +14,23 @@ Initialise(){
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Listening IP Address: ${LANIP}"
    SABNZBDHOST="$(sed -nr '/\[misc\]/,/\[/{/^host =/p}' "${CONFIGDIR}/sabnzbd.ini")"
    sed -i "s%^${SABNZBDHOST}$%host = ${LANIP}%" "${CONFIGDIR}/sabnzbd.ini"
+
+   if [ ! -f "${CONFIGDIR}/https" ]; then mkdir -p "${CONFIGDIR}/https"; fi
+   if [ ! -f "${CONFIGDIR}/https/sabnzbd.crt" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Generate private key for encrypting communications"
+      openssl ecparam -genkey -name secp384r1 -out "${CONFIGDIR}/https/sabnzbd.key"
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Create certificate request"
+      openssl req -new -subj "/C=NA/ST=Global/L=Global/O=SABnzbd/OU=SABnzbd/CN=SABnzbd/" -key "${CONFIGDIR}/https/sabnzbd.key" -out "${CONFIGDIR}/https/sabnzbd.csr"
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Generate self-signed certificate request"
+      openssl x509 -req -sha256 -days 3650 -in "${CONFIGDIR}/https/sabnzbd.csr" -signkey "${CONFIGDIR}/https/sabnzbd.key" -out "${CONFIGDIR}/https/sabnzbd.crt"
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use ${CONFIGDIR}/https/sabnzbd.key key file"
+      SABNZBDKEY="$(sed -nr '/\[core\]/,/\[/{/^https_key =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+      sed -i "s%^${SABNZBDKEY}$%https_key = ${CONFIGDIR}/https/sabnzbd.key%" "${CONFIGDIR}/sabnzbd.ini"
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use ${CONFIGDIR}/https/sabnzbd.crt certificate file"
+      SABNZBDCERT="$(sed -nr '/\[core\]/,/\[/{/^https_cert =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+      sed -i "s%^${SABNZBDKEY}$%https_cert = ${CONFIGDIR}/https/sabnzbd.crt%" "${CONFIGDIR}/sabnzbd.ini"
+   fi
+
 }
 
 CreateGroup(){

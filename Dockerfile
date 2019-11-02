@@ -3,7 +3,7 @@ MAINTAINER boredazfcuk
 ENV SABBASE="/SABnzbd" \
    N2MBASE="/nzbToMedia" \
    BUILDDEPENDENCIES="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make" \
-	APPDEPENDENCIES="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg" \
+	APPDEPENDENCIES="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl" \
    SABPYTHONDEPENDENCIES="cheetah3 cryptography sabyenc" \
 	CONFIGDIR="/config" \
 	SABREPO="sabnzbd/sabnzbd" \
