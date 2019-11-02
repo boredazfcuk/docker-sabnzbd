@@ -16,20 +16,31 @@ Initialise(){
    sed -i "s%^${SABNZBDHOST}$%host = ${LANIP}%" "${CONFIGDIR}/sabnzbd.ini"
 
    if [ ! -f "${CONFIGDIR}/https" ]; then mkdir -p "${CONFIGDIR}/https"; fi
+
    if [ ! -f "${CONFIGDIR}/https/sabnzbd.crt" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Generate private key for encrypting communications"
       openssl ecparam -genkey -name secp384r1 -out "${CONFIGDIR}/https/sabnzbd.key"
+   fi
+   if [ ! -f "${CONFIGDIR}/https/sabnzbd.csr" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Create certificate request"
       openssl req -new -subj "/C=NA/ST=Global/L=Global/O=SABnzbd/OU=SABnzbd/CN=SABnzbd/" -key "${CONFIGDIR}/https/sabnzbd.key" -out "${CONFIGDIR}/https/sabnzbd.csr"
+   fi
+   if [ ! -f "${CONFIGDIR}/https/sabnzbd.crt" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Generate self-signed certificate request"
       openssl x509 -req -sha256 -days 3650 -in "${CONFIGDIR}/https/sabnzbd.csr" -signkey "${CONFIGDIR}/https/sabnzbd.key" -out "${CONFIGDIR}/https/sabnzbd.crt"
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use ${CONFIGDIR}/https/sabnzbd.key key file"
-      SABNZBDKEY="$(sed -nr '/\[core\]/,/\[/{/^https_key =/p}' "${CONFIGDIR}/sabnzbd.ini")"
-      sed -i "s%^${SABNZBDKEY}$%https_key = ${CONFIGDIR}/https/sabnzbd.key%" "${CONFIGDIR}/sabnzbd.ini"
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use ${CONFIGDIR}/https/sabnzbd.crt certificate file"
-      SABNZBDCERT="$(sed -nr '/\[core\]/,/\[/{/^https_cert =/p}' "${CONFIGDIR}/sabnzbd.ini")"
-      sed -i "s%^${SABNZBDKEY}$%https_cert = ${CONFIGDIR}/https/sabnzbd.crt%" "${CONFIGDIR}/sabnzbd.ini"
    fi
+
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use ${CONFIGDIR}/https/sabnzbd.key key file"
+   SABNZBDKEY="$(sed -nr '/\[misc\]/,/\[/{/^https_key =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+   sed -i "s%^${SABNZBDKEY}$%https_key = ${CONFIGDIR}/https/sabnzbd.key%" "${CONFIGDIR}/sabnzbd.ini"
+
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use ${CONFIGDIR}/https/sabnzbd.crt certificate file"
+   SABNZBDCERT="$(sed -nr '/\[misc\]/,/\[/{/^https_cert =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+   sed -i "s%^${SABNZBDCERT}$%https_cert = ${CONFIGDIR}/https/sabnzbd.crt%" "${CONFIGDIR}/sabnzbd.ini"
+
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use HTTPS"
+   SABNZBDHTTPS="$(sed -nr '/\[nisc\]/,/\[/{/^enable_https =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+   sed -i "s%^${SABNZBDHTTPS}$%enable_https = 1%" "${CONFIGDIR}/sabnzbd.ini"
 
 }
 
