@@ -3,6 +3,7 @@
 ##### Functions #####
 Initialise(){
    LANIP="$(hostname -i)"
+   if [ ! -z "${HOSTSFQDN}" ]; then HOSTSNAME="$(echo "${HOSTSFQDN}" | awk -F. '{ print $1 }')"; fi
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Starting sabnzbd/sabnzbd container *****"
    if [ -z "${USER}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: User name not set, defaulting to 'user'"; USER="user"; fi
    if [ -z "${UID}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: User ID not set, defaulting to '1000'"; UID="1000"; fi
@@ -14,6 +15,12 @@ Initialise(){
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Listening IP Address: ${LANIP}"
    SABNZBDHOST="$(sed -nr '/\[misc\]/,/\[/{/^host =/p}' "${CONFIGDIR}/sabnzbd.ini")"
    sed -i "s%^${SABNZBDHOST}$%host = ${LANIP}%" "${CONFIGDIR}/sabnzbd.ini"
+   if [ ! -z "${ACCESSDOMAIN}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Access domain: ${ACCESSDOMAIN}"; fi
+   if [ ! -z "${HOSTSFQDN}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Host's fully qualified domain name: ${HOSTSFQDN}"; fi
+   if [ ! -z "${HOSTSNAME}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Host's hostname: ${HOSTSNAME}"; fi
+   if [ -z "${ACCESSDOMAIN}" ] && [ -z "${HOSTSFQDN}" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Access domain and Hosts fully qualified domain name variables not set, SABnzbd will only be accessible by IP address"
+   fi
 
    if [ ! -f "${CONFIGDIR}/https" ]; then mkdir -p "${CONFIGDIR}/https"; fi
 
@@ -41,6 +48,22 @@ Initialise(){
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure SABnzbd to use HTTPS"
    SABNZBDHTTPS="$(sed -nr '/\[misc\]/,/\[/{/^enable_https =/p}' "${CONFIGDIR}/sabnzbd.ini")"
    sed -i "s%^${SABNZBDHTTPS}$%enable_https = 1%" "${CONFIGDIR}/sabnzbd.ini"
+
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Set the host verification whitelist to use the container's hostname"
+   SABNZBDHOSTWHITELIST="$(sed -nr '/\[misc\]/,/\[/{/^host_whitelist =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+   sed -i "s%^${SABNZBDHOSTWHITELIST}$%host_whitelist = $(hostname),%" "${CONFIGDIR}/sabnzbd.ini"
+
+   if [ ! -z "${HOSTSFQDN}" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Add host's fully qualified domain name and hostname to the host verification whitelist"
+      SABNZBDHOSTWHITELIST="$(sed -nr '/\[misc\]/,/\[/{/^host_whitelist =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+      sed -i "s%^${SABNZBDHOSTWHITELIST}$%${SABNZBDHOSTWHITELIST} ${HOSTSFQDN}, ${HOSTSNAME},%" "${CONFIGDIR}/sabnzbd.ini"
+   fi
+
+   if [ ! -z "${ACCESSDOMAIN}" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Add access domain to the host verification whitelist"
+      SABNZBDHOSTWHITELIST="$(sed -nr '/\[misc\]/,/\[/{/^host_whitelist =/p}' "${CONFIGDIR}/sabnzbd.ini")"
+      sed -i "s%^${SABNZBDHOSTWHITELIST}$%${SABNZBDHOSTWHITELIST} ${ACCESSDOMAIN},%" "${CONFIGDIR}/sabnzbd.ini"
+   fi
 
 }
 
@@ -88,7 +111,7 @@ SetOwnerAndGroup(){
 
 InstallnzbToMedia(){
    if [ ! -d "${N2MBASE}/.git" ]; then
-      echo "$(date '+%H:%M:%S') [INFO    ][deluge.launcher.docker        :${PID}] ${N2MREPO} not detected, installing..."
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ${N2MREPO} not detected, installing..."
       chown "${USER}":"${GROUP}" "${N2MBASE}"
       cd "${N2MBASE}"
       su "${USER}" -c "git clone -b master https://github.com/${N2MREPO}.git ${N2MBASE}"
