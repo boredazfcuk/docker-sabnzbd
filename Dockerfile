@@ -11,6 +11,7 @@ ENV SABBASE="/SABnzbd" \
    N2MREPO="clinton-hall/nzbToMedia"
 
 COPY start-sabnzbd.sh /usr/local/bin/start-sabnzbd.sh
+COPY healthcheck.sh /usr/local/bin/healthcheck.sh
 
 RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD STARTED *****" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Create directories" && \
@@ -44,7 +45,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \
-   CMD wget --quiet --tries=1 --spider "http://${HOSTNAME}:8080/sabnzbd" || exit 1
+   CMD /usr/local/bin/healthcheck.sh
 
 VOLUME "${CONFIGDIR}" "/shared"
 
