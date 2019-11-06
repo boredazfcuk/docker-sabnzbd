@@ -39,7 +39,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${PARREPO}" && \
    make check && \
    make install && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
-   chmod +x /usr/local/bin/start-sabnzbd.sh && \
+   chmod +x /usr/local/bin/start-sabnzbd.sh /usr/local/bin/healthcheck.sh && \
    apk del --no-progress --purge build-deps && \
    rm -rv "/root/.cache/pip" "${TEMP}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
