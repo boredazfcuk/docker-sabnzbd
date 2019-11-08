@@ -107,6 +107,9 @@ SetOwnerAndGroup(){
    if [ ! -z "${COMPLETEDIR}" ] && [ -d "${COMPLETEDIR}" ]; then
       find "${COMPLETEDIR}"  -type d ! -user "${USER}" -exec chown "${USER}" {} \;
    fi
+   if [ -d "/shared" ]; then
+      find "/shared" ! -user "${USER}" -exec chown "${USER}" {} \;
+   fi
 }
 
 InstallnzbToMedia(){
