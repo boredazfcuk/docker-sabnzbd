@@ -1,21 +1,16 @@
 FROM alpine:latest
 MAINTAINER boredazfcuk
-ENV SABBASE="/SABnzbd" \
-   N2MBASE="/nzbToMedia" \
-   BUILDDEPENDENCIES="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make" \
-	APPDEPENDENCIES="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl" \
-   SABPYTHONDEPENDENCIES="cheetah3 cryptography sabyenc" \
-	CONFIGDIR="/config" \
-	SABREPO="sabnzbd/sabnzbd" \
-	PARREPO="Parchive/par2cmdline" \
-   N2MREPO="clinton-hall/nzbToMedia"
-
-COPY start-sabnzbd.sh /usr/local/bin/start-sabnzbd.sh
-COPY healthcheck.sh /usr/local/bin/healthcheck.sh
+ARG BUILDDEPENDENCIES="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
+ARG APPDEPENDENCIES="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates"
+ARG SABPYTHONDEPENDENCIES="cheetah3 cryptography sabyenc"
+ARG SABREPO="sabnzbd/sabnzbd"
+ARG PARREPO="Parchive/par2cmdline"
+ENV CONFIGDIR="/config" \
+   SABBASE="/SABnzbd"
 
 RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD STARTED *****" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Create directories" && \
-   mkdir -p "${SABBASE}" "${N2MBASE}" && \
+   mkdir -p "${SABBASE}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install build dependencies" && \
    apk add --no-cache --no-progress --virtual=build-deps ${BUILDDEPENDENCIES} && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install application dependencies" && \
@@ -39,14 +34,21 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${PARREPO}" && \
    make check && \
    make install && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
-   chmod +x /usr/local/bin/start-sabnzbd.sh /usr/local/bin/healthcheck.sh && \
    apk del --no-progress --purge build-deps && \
-   rm -rv "/root/.cache/pip" "${TEMP}" && \
+   rm -rv "/root/.cache/pip" "${TEMP}"
+
+COPY start-sabnzbd.sh /usr/local/bin/start-sabnzbd.sh
+COPY healthcheck.sh /usr/local/bin/healthcheck.sh
+COPY sabnzbd.ini /config/sabnzbd.ini
+
+RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | Set permissions on scripts" && \
+   chmod +x /usr/local/bin/start-sabnzbd.sh /usr/local/bin/healthcheck.sh && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \
    CMD /usr/local/bin/healthcheck.sh
 
-VOLUME "${CONFIGDIR}" "/shared"
+VOLUME "${CONFIGDIR}"
+WORKDIR "${SABBASE}"
 
 CMD /usr/local/bin/start-sabnzbd.sh
