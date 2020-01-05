@@ -183,7 +183,7 @@ InstallnzbToMedia(){
          -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 8080%" \
          -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${GLOBALAPIKEY}%" \
          "${N2MBASE}/autoProcessMedia.cfg"
-      if [ ! -z "${COUCHPOTATO}" ]; then
+      if [ ! -z "${COUCHPOTATOENABLED}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia CouchPotato settings"
          sed -i \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
@@ -194,7 +194,7 @@ InstallnzbToMedia(){
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%web_root =.*%web_root = /couchpotato%" \
             "${N2MBASE}/autoProcessMedia.cfg"
       fi
-      if [ ! -z "${SICKGEAR}" ]; then
+      if [ ! -z "${SICKGEARENABLED}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SickGear settings"
          sed -i \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
@@ -206,7 +206,7 @@ InstallnzbToMedia(){
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%web_root =.*%web_root = /sickgear%" \
             "${N2MBASE}/autoProcessMedia.cfg"
       fi
-      if [ ! -z "${HEADPHONES}" ]; then
+      if [ ! -z "${HEADPHONESENABLED}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia Headphones settings"
          sed -i \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
