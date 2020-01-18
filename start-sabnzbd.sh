@@ -2,42 +2,42 @@
 
 ##### Functions #####
 Initialise(){
-   LANIP="$(hostname -i)"
-   N2MBASE="/nzbToMedia"
-   N2MREPO="clinton-hall/nzbToMedia"
+   lan_ip="$(hostname -i)"
+   nzb2media_base_dir="/nzbToMedia"
+   nzb2media_repo="clinton-hall/nzbToMedia"
    echo -e "\n"
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Starting sabnzbd/sabnzbd container *****"
-   if [ -z "${STACKUSER}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: User name not set, defaulting to 'stackman'"; STACKUSER="stackman"; fi
-   if [ -z "${STACKPASSWORD}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Password not set, defaulting to 'Skibidibbydibyodadubdub'"; STACKPASSWORD="Skibidibbydibyodadubdub"; fi   
-   if [ -z "${UID}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: User ID not set, defaulting to '1000'"; UID="1000"; fi
-   if [ -z "${GROUP}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Group name not set, defaulting to 'group'"; GROUP="group"; fi
-   if [ -z "${GID}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Group ID not set, defaulting to '1000'"; GID="1000"; fi
-   if [ -z "${MOVIECOMPLETEDIR}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Category complete path not set for movie, defaulting to /storage/downloads/complete/movie/"; MOVIECOMPLETEDIR="/storage/downloads/complete/movie/"; fi
-   if [ -z "${MUSICCOMPLETEDIR}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Category complete path not set for music, defaulting to /storage/downloads/complete/music/"; MUSICCOMPLETEDIR="/storage/downloads/complete/music/"; fi
-   if [ -z "${OTHERCOMPLETEDIR}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Category complete path not set for other, defaulting to /storage/downloads/complete/other/"; OTHERCOMPLETEDIR="/storage/downloads/complete/other/"; fi
-   if [ -z "${TVCOMPLETEDIR}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Category complete path not set for tv, defaulting to /storage/downloads/complete/tv/"; TVCOMPLETEDIR="/storage/downloads/complete/tv/"; fi
-   if [ -z "${SABNZBDWATCHDIR}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: NZB file watch path not set, defaulting to /storage/downloads/watch/sabnzbd/"; SABNZBDWATCHDIR="/storage/downloads/watch/sabnzbd/"; fi
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Local user: ${STACKUSER}:${UID}"
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Local group: ${GROUP}:${GID}"
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    SABnzbd application directory: ${SABBASE}"
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Listening IP Address: ${LANIP}"
+   if [ -z "${stack_user}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: User name not set, defaulting to 'stackman'"; stack_user="stackman"; fi
+   if [ -z "${stack_password}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Password not set, defaulting to 'Skibidibbydibyodadubdub'"; stack_password="Skibidibbydibyodadubdub"; fi   
+   if [ -z "${user_id}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: User ID not set, defaulting to '1000'"; user_id="1000"; fi
+   if [ -z "${group}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Group name not set, defaulting to 'group'"; group="group"; fi
+   if [ -z "${group_id}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Group ID not set, defaulting to '1000'"; group_id="1000"; fi
+   if [ -z "${movie_complete_dir}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Category complete path not set for movie, defaulting to /storage/downloads/complete/movie/"; movie_complete_dir="/storage/downloads/complete/movie/"; fi
+   if [ -z "${music_complete_dir}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Category complete path not set for music, defaulting to /storage/downloads/complete/music/"; music_complete_dir="/storage/downloads/complete/music/"; fi
+   if [ -z "${other_complete_dir}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Category complete path not set for other, defaulting to /storage/downloads/complete/other/"; other_complete_dir="/storage/downloads/complete/other/"; fi
+   if [ -z "${tv_complete_dir}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Category complete path not set for tv, defaulting to /storage/downloads/complete/tv/"; tv_complete_dir="/storage/downloads/complete/tv/"; fi
+   if [ -z "${sabnzbd_watch_dir}" ]; then echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: NZB file watch path not set, defaulting to /storage/downloads/watch/sabnzbd/"; sabnzbd_watch_dir="/storage/downloads/watch/sabnzbd/"; fi
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Local user: ${stack_user}:${user_id}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Local group: ${group}:${group_id}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    SABnzbd application directory: ${app_base_dir}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Listening IP Address: ${lan_ip}"
 }
 
 CreateGroup(){
-   if [ -z "$(getent group "${GROUP}" | cut -d: -f3)" ]; then
+   if [ -z "$(getent group "${group}" | cut -d: -f3)" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Group ID available, creating group"
-      addgroup -g "${GID}" "${GROUP}"
-   elif [ ! "$(getent group "${GROUP}" | cut -d: -f3)" = "${GID}" ]; then
-      echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR:   Group GID mismatch - exiting"
+      addgroup -g "${group_id}" "${group}"
+   elif [ ! "$(getent group "${group}" | cut -d: -f3)" = "${group_id}" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR:   Group group_id mismatch - exiting"
       exit 1
    fi
 }
 
 CreateUser(){
-   if [ -z "$(getent passwd "${STACKUSER}" | cut -d: -f3)" ]; then
+   if [ -z "$(getent passwd "${stack_user}" | cut -d: -f3)" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    User ID available, creating user"
-      adduser -s /bin/ash -D -G "${GROUP}" -u "${UID}" "${STACKUSER}"
-   elif [ ! "$(getent passwd "${STACKUSER}" | cut -d: -f3)" = "${UID}" ]; then
+      adduser -s /bin/ash -D -G "${group}" -u "${user_id}" "${stack_user}"
+   elif [ ! "$(getent passwd "${stack_user}" | cut -d: -f3)" = "${user_id}" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR:   User ID already in use - exiting"
       exit 1
    fi
@@ -45,9 +45,9 @@ CreateUser(){
 
 FirstRun(){
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    First run detected - create default config"
-   find "${CONFIGDIR}" ! -user "${STACKUSER}" -exec chown "${STACKUSER}" {} \;
-   find "${CONFIGDIR}" ! -group "${GROUP}" -exec chgrp "${GROUP}" {} \;
-   su -m "${STACKUSER}" -c "python ${SABBASE}/SABnzbd.py --config-file ${CONFIGDIR}/sabnzbd.ini --daemon --pidfile /tmp/sabnzbd.pid --browser 0"
+   find "${config_dir}" ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
+   find "${config_dir}" ! -group "${group}" -exec chgrp "${group}" {} \;
+   su -m "${stack_user}" -c "python ${app_base_dir}/SABnzbd.py --config-file ${config_dir}/sabnzbd.ini --daemon --pidfile /tmp/sabnzbd.pid --browser 0"
    sleep 15
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Reload sabnzbd/sabnzbd *****"
    pkill python
@@ -96,61 +96,74 @@ FirstRun(){
       -e "/^\[misc\]/,/^\[.*\]/ s%^history_retention =.*%history_retention = 7d%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^ipv6_servers =.*%ipv6_servers = 0%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^ignore_empty_files =.*%ignore_empty_files = 1%" \
-      "${CONFIGDIR}/sabnzbd.ini"
+      "${config_dir}/sabnzbd.ini"
    sleep 1
 }
 
 EnableSSL(){
-   if [ ! -d "${CONFIGDIR}/https" ]; then
+   if [ ! -d "${config_dir}/https" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure HTTPS"
-      mkdir -p "${CONFIGDIR}/https"
+      mkdir -p "${config_dir}/https"
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Generate server key"
-      openssl ecparam -genkey -name secp384r1 -out "${CONFIGDIR}/https/sabnzbd.key"
+      openssl ecparam -genkey -name secp384r1 -out "${config_dir}/https/sabnzbd.key"
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Generate certificate request"
-      openssl req -new -subj "/C=NA/ST=Global/L=Global/O=SABnzbd/OU=SABnzbd/CN=SABnzbd/" -key "${CONFIGDIR}/https/sabnzbd.key" -out "${CONFIGDIR}/https/sabnzbd.csr"
+      openssl req -new -subj "/C=NA/ST=Global/L=Global/O=SABnzbd/OU=SABnzbd/CN=SABnzbd/" -key "${config_dir}/https/sabnzbd.key" -out "${config_dir}/https/sabnzbd.csr"
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Generate certificate"
-      openssl x509 -req -sha256 -days 3650 -in "${CONFIGDIR}/https/sabnzbd.csr" -signkey "${CONFIGDIR}/https/sabnzbd.key" -out "${CONFIGDIR}/https/sabnzbd.crt" >/dev/null 2>&1
+      openssl x509 -req -sha256 -days 3650 -in "${config_dir}/https/sabnzbd.csr" -signkey "${config_dir}/https/sabnzbd.key" -out "${config_dir}/https/sabnzbd.crt" >/dev/null 2>&1
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable HTTPS"
       sed -i \
-         -e "/^\[misc\]/,/^\[.*\]/ s%^https_key =.*%https_key = ${CONFIGDIR}/https/sabnzbd.key%" \
-         -e "/^\[misc\]/,/^\[.*\]/ s%^https_cert =.*%https_cert = ${CONFIGDIR}/https/sabnzbd.crt%" \
+         -e "/^\[misc\]/,/^\[.*\]/ s%^https_key =.*%https_key = ${config_dir}/https/sabnzbd.key%" \
+         -e "/^\[misc\]/,/^\[.*\]/ s%^https_cert =.*%https_cert = ${config_dir}/https/sabnzbd.crt%" \
          -e "/^\[misc\]/,/^\[.*\]/ s%^enable_https =.*%enable_https = 1%" \
          -e "/^\[misc\]/,/^\[.*\]/ s%^https_port =.*%https_port = 9090%" \
-         "${CONFIGDIR}/sabnzbd.ini"
+         "${config_dir}/sabnzbd.ini"
    fi
 }
 
 Configure(){
    sed -i \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^host =.*%host = ${LANIP}%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^username = \".*\"%username = \"${STACKUSER}\"%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^password = \".*\"%password = \"${STACKPASSWORD}\"%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^dirscan_dir =.*%dirscan_dir = ${SABNZBDWATCHDIR}%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^download_dir =.*%download_dir = ${SABNZBDINCOMINGDIR}%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^nzb_backup_dir =.*%nzb_backup_dir = ${SABNZBDFILEBACKUPDIR}%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^complete_dir =.*%complete_dir = ${OTHERCOMPLETEDIR}%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^script_dir =.*%script_dir = ${N2MBASE}%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^api_key =.*%api_key = ${GLOBALAPIKEY}%" \
-      -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${MOVIECOMPLETEDIR}%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^host =.*%host = ${lan_ip}%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^username = \".*\"%username = \"${stack_user}\"%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^password = \".*\"%password = \"${stack_password}\"%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^dirscan_dir =.*%dirscan_dir = ${sabnzbd_watch_dir}%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^download_dir =.*%download_dir = ${sabnzbd_incoming_dir}%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^nzb_backup_dir =.*%nzb_backup_dir = ${sabnzbd_file_backup_dir}%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^complete_dir =.*%complete_dir = ${other_complete_dir}%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^script_dir =.*%script_dir = ${nzb2media_base_dir}%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^api_key =.*%api_key = ${global_api_key}%" \
+      -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${movie_complete_dir}%" \
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^name =.*%name = movie%" \
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToCouchPotato.py%" \
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
-      -e "/^\[\[music\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${MUSICCOMPLETEDIR}%" \
+      -e "/^\[\[music\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${music_complete_dir}%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^name =.*%name = music%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToHeadPhones.py%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
-      -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${TVCOMPLETEDIR}%" \
+      -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${tv_complete_dir}%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^name =.*%name = tv%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToSickBeard.py%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
-      "${CONFIGDIR}/sabnzbd.ini"
-   if [ ! -z "${MEDIAACCESSDOMAIN}" ]; then
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Access domain: ${MEDIAACCESSDOMAIN}"
-      HOSTWHITELIST="$(sed -nr '/\[misc\]/,/\[/{/^host_whitelist =/p}' "${CONFIGDIR}/sabnzbd.ini")"
-      if [ "$(grep -c "${MEDIAACCESSDOMAIN}" "${CONFIGDIR}/sabnzbd.ini")" = 0 ]; then
+      "${config_dir}/sabnzbd.ini"
+   if [ ! -z "${sabnzbd_server_host}" ] && [ ! -z "${sabnzbd_server_host_port}" ] && [ ! -z "${sabnzbd_server_host_ssl}" ] && [ ! -z "${sabnzbd_server_host_user}" ] && [ ! -z "${sabnzbd_server_host_password}" ] && [ ! -z "${sabnzbd_server_host_connections}" ] && [ ! -z "${sabnzbd_server_host_priority}" ]; then
+      sed -i \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^username =.*%username = ${sabnzbd_server_host_user}%" \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^displayname =.*%displayname = UsenetHost%" \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^name =.*%name = UsenetHost%" \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^password =.*%password = ${sabnzbd_server_host_password}%" \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^connections =.*%connections = ${sabnzbd_server_host_connections}%" \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^host =.*%host = ${sabnzbd_server_host}%" \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^port =.*%port = ${sabnzbd_server_host_port}%" \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^ssl =.*%ssl = ${sabnzbd_server_host_ssl}%" \
+         -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^priority =.*%priority = ${sabnzbd_server_host_priority}%" \
+      "${config_dir}/sabnzbd.ini"
+   fi
+   if [ ! -z "${media_access_domain}" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Access domain: ${media_access_domain}"
+      host_verification_access_list="$(sed -nr '/\[misc\]/,/\[/{/^host_whitelist =/p}' "${config_dir}/sabnzbd.ini")"
+      if [ "$(grep -c "${media_access_domain}" "${config_dir}/sabnzbd.ini")" = 0 ]; then
          sed -i \
-            -e "s%^${HOSTWHITELIST}$%${HOSTWHITELIST} ${MEDIAACCESSDOMAIN},%" \
-            "${CONFIGDIR}/sabnzbd.ini"
+            -e "s%^${host_verification_access_list}$%${host_verification_access_list} ${media_access_domain},%" \
+            "${config_dir}/sabnzbd.ini"
       fi
    else
       echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Access domain not set, SABnzbd will only be accessible by IP address"
@@ -158,14 +171,14 @@ Configure(){
 }
 
 InstallnzbToMedia(){
-   if [ ! -d "${N2MBASE}" ]; then
-      mkdir -p "${N2MBASE}"
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ${N2MREPO} not detected, installing..."
-      chown "${STACKUSER}":"${GROUP}" "${N2MBASE}"
-      cd "${N2MBASE}"
-      su "${STACKUSER}" -c "git clone --quiet --branch master https://github.com/${N2MREPO}.git ${N2MBASE}"
-      if [ ! -f "${N2MBASE}/autoProcessMedia.cfg" ]; then
-         cp "${N2MBASE}/autoProcessMedia.cfg.spec" "${N2MBASE}/autoProcessMedia.cfg"
+   if [ ! -d "${nzb2media_base_dir}" ]; then
+      mkdir -p "${nzb2media_base_dir}"
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ${nzb2media_repo} not detected, installing..."
+      chown "${stack_user}":"${group}" "${nzb2media_base_dir}"
+      cd "${nzb2media_base_dir}"
+      su "${stack_user}" -c "git clone --quiet --branch master https://github.com/${nzb2media_repo}.git ${nzb2media_base_dir}"
+      if [ ! -f "${nzb2media_base_dir}/autoProcessMedia.cfg" ]; then
+         cp "${nzb2media_base_dir}/autoProcessMedia.cfg.spec" "${nzb2media_base_dir}/autoProcessMedia.cfg"
       fi
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Change nzbToMedia default configuration"
       sed -i \
@@ -175,90 +188,90 @@ InstallnzbToMedia(){
          -e "/^\[General\]/,/^\[.*\]/ s%ffmpeg_path = *%ffmpeg_path = /usr/local/bin/ffmpeg%" \
          -e "/^\[General\]/,/^\[.*\]/ s%safe_mode =.*%safe_mode = 1%" \
          -e "/^\[General\]/,/^\[.*\]/ s%no_extract_failed =.*%no_extract_failed = 1%" \
-         "${N2MBASE}/autoProcessMedia.cfg"
+         "${nzb2media_base_dir}/autoProcessMedia.cfg"
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SABnzbd settings"
       sed -i \
          -e "/^\[Nzb\]/,/^\[.*\]/ s%clientAgent =.*%clientAgent = sabnzbd%" \
          -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_host =.*%sabnzbd_host = http://openvpnpia%" \
          -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 8080%" \
-         -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${GLOBALAPIKEY}%" \
-         "${N2MBASE}/autoProcessMedia.cfg"
-      if [ ! -z "${COUCHPOTATOENABLED}" ]; then
+         -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${global_api_key}%" \
+         "${nzb2media_base_dir}/autoProcessMedia.cfg"
+      if [ ! -z "${couchpotato_enabled}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia CouchPotato settings"
          sed -i \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
-            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%apikey =.*%apikey = ${GLOBALAPIKEY}%" \
+            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%host =.*%host = openvpnpia%" \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%port =.*%port = 5050%" \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%web_root =.*%web_root = /couchpotato%" \
-            "${N2MBASE}/autoProcessMedia.cfg"
+            "${nzb2media_base_dir}/autoProcessMedia.cfg"
       fi
-      if [ ! -z "${SICKGEARENABLED}" ]; then
+      if [ ! -z "${sickgear_enabled}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SickGear settings"
          sed -i \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%apikey =.*%apikey = ${GLOBALAPIKEY}%" \
+            -e "/^\[SickBeard\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%host =.*%host = openvpnpia%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%port =.*%port = 8081%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%fork =.*%fork = sickgear%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%web_root =.*%web_root = /sickgear%" \
-            "${N2MBASE}/autoProcessMedia.cfg"
+            "${nzb2media_base_dir}/autoProcessMedia.cfg"
       fi
-      if [ ! -z "${HEADPHONESENABLED}" ]; then
+      if [ ! -z "${headphones_enabled}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia Headphones settings"
          sed -i \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
-            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%apikey =.*%apikey = ${GLOBALAPIKEY}%" \
+            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%host =.*%host = openvpnpia%" \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%port =.*%port = 8181%" \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%web_root =.*%web_root = /headphones%" \
-            "${N2MBASE}/autoProcessMedia.cfg"
+            "${nzb2media_base_dir}/autoProcessMedia.cfg"
       fi
    fi
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia download paths"
    sed -i \
-      -e "/^\[CouchPotato\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${MOVIECOMPLETEDIR}%" \
-      -e "/^\[SickBeard\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${TVCOMPLETEDIR}%" \
-      -e "/^\[Headphones\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${MUSICCOMPLETEDIR}%" \
-      -e "/^\[Nzb\]/,/^\[.*\]/ s%default_downloadDirectory =.*%default_downloadDirectory = ${OTHERCOMPLETEDIR}%" \
-      "${N2MBASE}/autoProcessMedia.cfg"
+      -e "/^\[CouchPotato\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${movie_complete_dir}%" \
+      -e "/^\[SickBeard\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${tv_complete_dir}%" \
+      -e "/^\[Headphones\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${music_complete_dir}%" \
+      -e "/^\[Nzb\]/,/^\[.*\]/ s%default_downloadDirectory =.*%default_downloadDirectory = ${other_complete_dir}%" \
+      "${nzb2media_base_dir}/autoProcessMedia.cfg"
 }
 
 SetOwnerAndGroup(){
-   DIRSCANDIR="$(grep dirscan_dir "${CONFIGDIR}/sabnzbd.ini" | awk '{print $3}')"
-   DOWNLOADDIR="$(grep download_dir "${CONFIGDIR}/sabnzbd.ini" | awk '{print $3}')"
-   COMPLETEDIR="$(grep complete_dir "${CONFIGDIR}/sabnzbd.ini" | awk '{print $3}')"
+   sabnzbd_watch_dir="$(grep dirscan_dir "${config_dir}/sabnzbd.ini" | awk '{print $3}')"
+   sabnzbd_incoming_dir="$(grep download_dir "${config_dir}/sabnzbd.ini" | awk '{print $3}')"
+   sabnzbd_complete_dir="$(grep complete_dir "${config_dir}/sabnzbd.ini" | awk '{print $3}')"
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Correct owner and group of syncronised files, if required"
-   find "${CONFIGDIR}" ! -user "${STACKUSER}" -exec chown "${STACKUSER}" {} \;
-   find "${CONFIGDIR}" ! -group "${GROUP}" -exec chgrp "${GROUP}" {} \;
-   find "${SABBASE}" ! -user "${STACKUSER}" -exec chown "${STACKUSER}" {} \;
-   find "${SABBASE}" ! -group "${GROUP}" -exec chgrp "${GROUP}" {} \;
-   find "${N2MBASE}" ! -user "${STACKUSER}" -exec chown "${STACKUSER}" {} \;
-   find "${N2MBASE}" ! -group "${GROUP}" -exec chgrp "${GROUP}" {} \;
-   if [ ! -z "${DIRSCANDIR}" ] && [ -d "${DIRSCANDIR}" ]; then
-      find "${DIRSCANDIR}" -type d ! -user "${STACKUSER}" -exec chown "${STACKUSER}" {} \;
+   find "${config_dir}" ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
+   find "${config_dir}" ! -group "${group}" -exec chgrp "${group}" {} \;
+   find "${app_base_dir}" ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
+   find "${app_base_dir}" ! -group "${group}" -exec chgrp "${group}" {} \;
+   find "${nzb2media_base_dir}" ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
+   find "${nzb2media_base_dir}" ! -group "${group}" -exec chgrp "${group}" {} \;
+   if [ ! -z "${sabnzbd_watch_dir}" ] && [ -d "${sabnzbd_watch_dir}" ]; then
+      find "${sabnzbd_watch_dir}" -type d ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    fi
-   if [ ! -z "${DOWNLOADDIR}" ] && [ -d "${DOWNLOADDIR}" ]; then
-      find "${DOWNLOADDIR}" -type d ! -user "${STACKUSER}" -exec chown "${STACKUSER}" {} \;
+   if [ ! -z "${sabnzbd_incoming_dir}" ] && [ -d "${sabnzbd_incoming_dir}" ]; then
+      find "${sabnzbd_incoming_dir}" -type d ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    fi
-   if [ ! -z "${COMPLETEDIR}" ] && [ -d "${COMPLETEDIR}" ]; then
-      find "${COMPLETEDIR}"  -type d ! -user "${STACKUSER}" -exec chown "${STACKUSER}" {} \;
+   if [ ! -z "${sabnzbd_complete_dir}" ] && [ -d "${sabnzbd_complete_dir}" ]; then
+      find "${sabnzbd_complete_dir}"  -type d ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    fi
 }
 
 LaunchSABnzbd(){
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Starting SABnzbd as ${STACKUSER}"
-   su "${STACKUSER}" -c "python ${SABBASE}/SABnzbd.py --config-file ${CONFIGDIR}/sabnzbd.ini --browser 0"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Starting SABnzbd as ${stack_user}"
+   su "${stack_user}" -c "python ${app_base_dir}/SABnzbd.py --config-file ${config_dir}/sabnzbd.ini --browser 0"
 }
 
 ##### Script #####
 Initialise
 CreateGroup
 CreateUser
-if [ ! -d "${CONFIGDIR}/admin" ]; then FirstRun; fi
+if [ ! -d "${config_dir}/admin" ]; then FirstRun; fi
 EnableSSL
 Configure
 InstallnzbToMedia
