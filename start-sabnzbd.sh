@@ -144,7 +144,7 @@ Configure(){
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToSickBeard.py%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
       "${config_dir}/sabnzbd.ini"
-   if [ ! -z "${sabnzbd_server_host}" ] && [ ! -z "${sabnzbd_server_host_port}" ] && [ ! -z "${sabnzbd_server_host_ssl}" ] && [ ! -z "${sabnzbd_server_host_user}" ] && [ ! -z "${sabnzbd_server_host_password}" ] && [ ! -z "${sabnzbd_server_host_connections}" ] && [ ! -z "${sabnzbd_server_host_priority}" ]; then
+   if [ "${sabnzbd_server_host}" ] && [ "${sabnzbd_server_host_port}" ] && [ "${sabnzbd_server_host_ssl}" ] && [ "${sabnzbd_server_host_user}" ] && [ "${sabnzbd_server_host_password}" ] && [ "${sabnzbd_server_host_connections}" ] && [ "${sabnzbd_server_host_priority}" ]; then
       sed -i \
          -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^username =.*%username = ${sabnzbd_server_host_user}%" \
          -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^displayname =.*%displayname = UsenetHost%" \
@@ -157,7 +157,7 @@ Configure(){
          -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^priority =.*%priority = ${sabnzbd_server_host_priority}%" \
       "${config_dir}/sabnzbd.ini"
    fi
-   if [ ! -z "${media_access_domain}" ]; then
+   if [ "${media_access_domain}" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Access domain: ${media_access_domain}"
       host_verification_access_list="$(sed -nr '/\[misc\]/,/\[/{/^host_whitelist =/p}' "${config_dir}/sabnzbd.ini")"
       if [ "$(grep -c "${media_access_domain}" "${config_dir}/sabnzbd.ini")" = 0 ]; then
@@ -196,7 +196,7 @@ InstallnzbToMedia(){
          -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 8080%" \
          -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${global_api_key}%" \
          "${nzb2media_base_dir}/autoProcessMedia.cfg"
-      if [ ! -z "${couchpotato_enabled}" ]; then
+      if [ "${couchpotato_enabled}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia CouchPotato settings"
          sed -i \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
@@ -207,7 +207,7 @@ InstallnzbToMedia(){
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%web_root =.*%web_root = /couchpotato%" \
             "${nzb2media_base_dir}/autoProcessMedia.cfg"
       fi
-      if [ ! -z "${sickgear_enabled}" ]; then
+      if [ "${sickgear_enabled}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SickGear settings"
          sed -i \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
@@ -219,7 +219,7 @@ InstallnzbToMedia(){
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%web_root =.*%web_root = /sickgear%" \
             "${nzb2media_base_dir}/autoProcessMedia.cfg"
       fi
-      if [ ! -z "${headphones_enabled}" ]; then
+      if [ "${headphones_enabled}" ]; then
          echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia Headphones settings"
          sed -i \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
@@ -251,13 +251,13 @@ SetOwnerAndGroup(){
    find "${app_base_dir}" ! -group "${group}" -exec chgrp "${group}" {} \;
    find "${nzb2media_base_dir}" ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    find "${nzb2media_base_dir}" ! -group "${group}" -exec chgrp "${group}" {} \;
-   if [ ! -z "${sabnzbd_watch_dir}" ] && [ -d "${sabnzbd_watch_dir}" ]; then
+   if [ "${sabnzbd_watch_dir}" ] && [ -d "${sabnzbd_watch_dir}" ]; then
       find "${sabnzbd_watch_dir}" -type d ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    fi
-   if [ ! -z "${sabnzbd_incoming_dir}" ] && [ -d "${sabnzbd_incoming_dir}" ]; then
+   if [ "${sabnzbd_incoming_dir}" ] && [ -d "${sabnzbd_incoming_dir}" ]; then
       find "${sabnzbd_incoming_dir}" -type d ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    fi
-   if [ ! -z "${sabnzbd_complete_dir}" ] && [ -d "${sabnzbd_complete_dir}" ]; then
+   if [ "${sabnzbd_complete_dir}" ] && [ -d "${sabnzbd_complete_dir}" ]; then
       find "${sabnzbd_complete_dir}"  -type d ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    fi
 }
