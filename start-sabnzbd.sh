@@ -191,7 +191,7 @@ InstallnzbToMedia(){
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SABnzbd settings"
       sed -i \
          -e "/^\[Nzb\]/,/^\[.*\]/ s%clientAgent =.*%clientAgent = sabnzbd%" \
-         -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_host =.*%sabnzbd_host = http://${HOSTNAME}%" \
+         -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_host =.*%sabnzbd_host = http://sabnzbd%" \
          -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 8080%" \
          -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${global_api_key}%" \
          "${nzb2media_base_dir}/autoProcessMedia.cfg"
@@ -200,7 +200,7 @@ InstallnzbToMedia(){
          sed -i \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
-            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%host =.*%host = ${HOSTNAME}%" \
+            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%host =.*%host = couchpotato%" \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%port =.*%port = 5050%" \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
             -e "/^\[CouchPotato\]/,/^\[.*\]/ s%web_root =.*%web_root = /couchpotato%" \
@@ -211,7 +211,7 @@ InstallnzbToMedia(){
          sed -i \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%host =.*%host = ${HOSTNAME}%" \
+            -e "/^\[SickBeard\]/,/^\[.*\]/ s%host =.*%host = sickgear%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%port =.*%port = 8081%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
             -e "/^\[SickBeard\]/,/^\[.*\]/ s%fork =.*%fork = sickgear%" \
@@ -223,7 +223,7 @@ InstallnzbToMedia(){
          sed -i \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
-            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%host =.*%host = openvpnpia%" \
+            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%host =.*%host = headphones%" \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%port =.*%port = 8181%" \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
             -e "/^\[HeadPhones\]/,/^\[.*\]/ s%web_root =.*%web_root = /headphones%" \
