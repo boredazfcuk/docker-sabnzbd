@@ -1,0 +1,8 @@
+20200209
+
+ - Change: Installing the apk version of wget as the busybox version doesn't seem to close SSL connections correctly when healthcheck run... Loads defunct connections appearing inside container
+
+20200208
+
+ - Change: Changed from CMD based launching to ENTRYPOINT
+ - Change: Now uses exec to lauch SABnzbd so it inherits PID of parent

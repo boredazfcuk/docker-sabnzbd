@@ -1,7 +1,7 @@
 FROM alpine:latest
 MAINTAINER boredazfcuk
 ARG build_dependencies="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
-ARG app_dependencies="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates"
+ARG app_dependencies="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget"
 ARG python_dependencies="cheetah3 cryptography sabyenc"
 ARG app_repo="sabnzbd/sabnzbd"
 ARG parchive_repo="Parchive/par2cmdline"
@@ -37,12 +37,12 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
    apk del --no-progress --purge build-deps && \
    rm -rv "/root/.cache/pip" "${temp_dir}"
 
-COPY start-sabnzbd.sh /usr/local/bin/start-sabnzbd.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY healthcheck.sh /usr/local/bin/healthcheck.sh
 COPY sabnzbd.ini /config/sabnzbd.ini
 
 RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | Set permissions on scripts" && \
-   chmod +x /usr/local/bin/start-sabnzbd.sh /usr/local/bin/healthcheck.sh && \
+   chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \
@@ -51,4 +51,4 @@ HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \
 VOLUME "${config_dir}"
 WORKDIR "${app_base_dir}"
 
-CMD /usr/local/bin/start-sabnzbd.sh
+ENTRYPOINT /usr/local/bin/entrypoint.sh

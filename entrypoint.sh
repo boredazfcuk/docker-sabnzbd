@@ -6,7 +6,7 @@ Initialise(){
    nzb2media_base_dir="/nzbToMedia"
    nzb2media_repo="clinton-hall/nzbToMedia"
    echo -e "\n"
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Starting sabnzbd/sabnzbd container *****"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Configuring SABnzbd container launch environment *****"
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Local user: ${stack_user:=stackman}:${user_id:=1000}"
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Password: ${stack_password:=Skibidibbydibyodadubdub}"
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Local group: ${sabnzbd_group:=sabnzbd}:${sabnzbd_group_id:=1000}"
@@ -46,10 +46,10 @@ FirstRun(){
    find "${config_dir}" ! -group "${sabnzbd_group}" -exec chgrp "${sabnzbd_group}" {} \;
    su -m "${stack_user}" -c "python ${app_base_dir}/SABnzbd.py --config-file ${config_dir}/sabnzbd.ini --daemon --pidfile /tmp/sabnzbd.pid --browser 0"
    sleep 15
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Reload sabnzbd/sabnzbd *****"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Reload SABnzbd launch environment *****"
    pkill python
    sleep 5
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Customise SABnzbd config"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Customise SABnzbd default config"
    sed -i \
       -e "/^\[misc\]/,/^\[.*\]/ s%^fast_fail = 0%fast_fail = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^safe_postproc = 0%safe_postproc = 1%" \
@@ -262,8 +262,9 @@ SetOwnerAndGroup(){
 }
 
 LaunchSABnzbd(){
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Configuration of SABnzbd container launch environment complete *****"
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Starting SABnzbd as ${stack_user}"
-   su "${stack_user}" -c "python ${app_base_dir}/SABnzbd.py --config-file ${config_dir}/sabnzbd.ini --browser 0"
+   exec "$(which su)" "${stack_user}" -c "$(which python) ${app_base_dir}/SABnzbd.py --config-file ${config_dir}/sabnzbd.ini --browser 0"
 }
 
 ##### Script #####
