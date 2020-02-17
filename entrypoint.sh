@@ -44,7 +44,7 @@ FirstRun(){
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    First run detected - create default config"
    find "${config_dir}" ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    find "${config_dir}" ! -group "${sabnzbd_group}" -exec chgrp "${sabnzbd_group}" {} \;
-   su -m "${stack_user}" -c "python ${app_base_dir}/SABnzbd.py --config-file ${config_dir}/sabnzbd.ini --daemon --pidfile /tmp/sabnzbd.pid --browser 0"
+   su -p "${stack_user}" -c "python ${app_base_dir}/SABnzbd.py --config-file ${config_dir}/sabnzbd.ini --daemon --pidfile /tmp/sabnzbd.pid --browser 0"
    sleep 15
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ***** Reload SABnzbd launch environment *****"
    pkill python
@@ -143,6 +143,17 @@ Configure(){
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToSickBeard.py%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
       "${config_dir}/sabnzbd.ini"
+   if [ "${sabnzbd_enabled}" ]; then
+      sed -i \
+         -e "/^\[misc\]/,/^\[.*\]/ s%^url_base =.*%url_base = /sabnzbd%" \
+         "${config_dir}/sabnzbd.ini"
+   else
+      sed -i \
+         -e "/^\[misc\]/,/^\[.*\]/ s%^url_base =.*%url_base = /%" \
+         "${config_dir}/sabnzbd.ini"
+
+   fi
+
    if [ "${sabnzbd_server_host}" ] && [ "${sabnzbd_server_host_port}" ] && [ "${sabnzbd_server_host_ssl}" ] && [ "${sabnzbd_server_host_user}" ] && [ "${sabnzbd_server_host_password}" ] && [ "${sabnzbd_server_host_connections}" ] && [ "${sabnzbd_server_host_priority}" ]; then
       sed -i \
          -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^username =.*%username = ${sabnzbd_server_host_user}%" \

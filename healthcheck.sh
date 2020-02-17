@@ -1,14 +1,14 @@
 #!/bin/ash
-exit_code
-exit_code="$(wget --quiet --tries=1 --spider "http://${HOSTNAME}:8080/sabnzbd/robots.txt" && echo $?)"
-if [ "${exit_code}" != 0 ]; then
-   echo "HTTP WebUI not responding: Error ${exit_code}"
+
+if [ "$(nc -z "$(hostname -i)" 8080; echo "${?}")" -ne 0 ]; then
+   echo "SABnzbd HTTP WebUI not responding on port 8080"
    exit 1
 fi
-exit_code="$(wget --quiet --tries=1 --no-check-certificate --spider "https://${HOSTNAME}:9090/sabnzbd/robots.txt" && echo $?)"
-if [ "${exit_code}" != 0 ]; then
-   echo "HTTPS WebUI not responding: Error ${exit_code}"
+
+if [ "$(nc -z "$(hostname -i)" 9090; echo "${?}")" -ne 0 ]; then
+   echo "SABnzbd HTTPS WebUI not responding on port 9090"
    exit 1
 fi
-echo "WebUIs available"
+
+echo "SABnzbd HTTP and HTTPS WebUIs responding OK"
 exit 0
