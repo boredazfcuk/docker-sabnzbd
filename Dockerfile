@@ -2,7 +2,7 @@ FROM alpine:latest
 MAINTAINER boredazfcuk
 ARG build_dependencies="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
 ARG app_dependencies="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget"
-ARG python_dependencies="cheetah3 cryptography sabyenc"
+ARG pip_dependencies="cheetah3 cryptography sabyenc"
 ARG app_repo="sabnzbd/sabnzbd"
 ARG parchive_repo="Parchive/par2cmdline"
 ENV config_dir="/config" \
@@ -19,8 +19,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${app_repo}" && \
    git clone -b master "https://github.com/${app_repo}.git" "${app_base_dir}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${app_repo} python dependencies" && \
    cd "${app_base_dir}" && \
-   pip install --no-cache-dir --upgrade pip && \
-   pip install --no-cache-dir ${python_dependencies} && \
+   pip install --upgrade pip --no-cache-dir ${pip_dependencies} && \
    "${app_base_dir}/tools/make_mo.py" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${parchive_repo}" && \
    temp_dir="$(mktemp -d)" && \

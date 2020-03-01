@@ -181,65 +181,69 @@ Configure(){
 }
 
 InstallnzbToMedia(){
-   if [ ! -d "${nzb2media_base_dir}" ]; then
+   if [ ! -f "${nzb2media_base_dir}/nzbToMedia.py" ]; then
+      if [ -d "${nzb2media_base_dir}" ]; then
+         echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Cleaning up previously failed installation"
+         rm -r "${nzb2media_base_dir}"
+      fi
       mkdir -p "${nzb2media_base_dir}"
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    ${nzb2media_repo} not detected, installing..."
       chown "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
       cd "${nzb2media_base_dir}"
       su "${stack_user}" -c "git clone --quiet --branch master https://github.com/${nzb2media_repo}.git ${nzb2media_base_dir}"
-      if [ ! -f "${nzb2media_base_dir}/autoProcessMedia.cfg" ]; then
+   fi
+   if [ ! -f "${nzb2media_base_dir}/autoProcessMedia.cfg" ]; then
          cp "${nzb2media_base_dir}/autoProcessMedia.cfg.spec" "${nzb2media_base_dir}/autoProcessMedia.cfg"
-      fi
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Change nzbToMedia default configuration"
+   fi
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Change nzbToMedia default configuration"
+   sed -i \
+      -e "/^\[General\]/,/^\[.*\]/ s%auto_update =.*%auto_update = 1%" \
+      -e "/^\[General\]/,/^\[.*\]/ s%git_path =.*%git_path = /usr/bin/git%" \
+      -e "/^\[General\]/,/^\[.*\]/ s%git_branch =.*%git_branch = master%" \
+      -e "/^\[General\]/,/^\[.*\]/ s%ffmpeg_path = *%ffmpeg_path = /usr/local/bin/ffmpeg%" \
+      -e "/^\[General\]/,/^\[.*\]/ s%safe_mode =.*%safe_mode = 1%" \
+      -e "/^\[General\]/,/^\[.*\]/ s%no_extract_failed =.*%no_extract_failed = 1%" \
+      "${nzb2media_base_dir}/autoProcessMedia.cfg"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SABnzbd settings"
+   sed -i \
+      -e "/^\[Nzb\]/,/^\[.*\]/ s%clientAgent =.*%clientAgent = sabnzbd%" \
+      -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_host =.*%sabnzbd_host = http://sabnzbd%" \
+      -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 8080%" \
+      -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${global_api_key}%" \
+      "${nzb2media_base_dir}/autoProcessMedia.cfg"
+   if [ "${couchpotato_enabled}" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia CouchPotato settings"
       sed -i \
-         -e "/^\[General\]/,/^\[.*\]/ s%auto_update =.*%auto_update = 1%" \
-         -e "/^\[General\]/,/^\[.*\]/ s%git_path =.*%git_path = /usr/bin/git%" \
-         -e "/^\[General\]/,/^\[.*\]/ s%git_branch =.*%git_branch = master%" \
-         -e "/^\[General\]/,/^\[.*\]/ s%ffmpeg_path = *%ffmpeg_path = /usr/local/bin/ffmpeg%" \
-         -e "/^\[General\]/,/^\[.*\]/ s%safe_mode =.*%safe_mode = 1%" \
-         -e "/^\[General\]/,/^\[.*\]/ s%no_extract_failed =.*%no_extract_failed = 1%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
+         -e "/^\[CouchPotato\]/,/###### ADVANCED USE/ s%apikey =.*%apikey = ${global_api_key}%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%host =.*%host = couchpotato%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%port =.*%port = 5050%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%web_root =.*%web_root = /couchpotato%" \
          "${nzb2media_base_dir}/autoProcessMedia.cfg"
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SABnzbd settings"
+   fi
+   if [ "${sickgear_enabled}" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SickGear settings"
       sed -i \
-         -e "/^\[Nzb\]/,/^\[.*\]/ s%clientAgent =.*%clientAgent = sabnzbd%" \
-         -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_host =.*%sabnzbd_host = http://sabnzbd%" \
-         -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 8080%" \
-         -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${global_api_key}%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%host =.*%host = sickgear%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%port =.*%port = 8081%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%fork =.*%fork = sickgear%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%web_root =.*%web_root = /sickgear%" \
          "${nzb2media_base_dir}/autoProcessMedia.cfg"
-      if [ "${couchpotato_enabled}" ]; then
-         echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia CouchPotato settings"
-         sed -i \
-            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
-            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
-            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%host =.*%host = couchpotato%" \
-            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%port =.*%port = 5050%" \
-            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
-            -e "/^\[CouchPotato\]/,/^\[.*\]/ s%web_root =.*%web_root = /couchpotato%" \
-            "${nzb2media_base_dir}/autoProcessMedia.cfg"
-      fi
-      if [ "${sickgear_enabled}" ]; then
-         echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia SickGear settings"
-         sed -i \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%host =.*%host = sickgear%" \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%port =.*%port = 8081%" \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%fork =.*%fork = sickgear%" \
-            -e "/^\[SickBeard\]/,/^\[.*\]/ s%web_root =.*%web_root = /sickgear%" \
-            "${nzb2media_base_dir}/autoProcessMedia.cfg"
-      fi
-      if [ "${headphones_enabled}" ]; then
-         echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia Headphones settings"
-         sed -i \
-            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
-            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
-            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%host =.*%host = headphones%" \
-            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%port =.*%port = 8181%" \
-            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
-            -e "/^\[HeadPhones\]/,/^\[.*\]/ s%web_root =.*%web_root = /headphones%" \
-            "${nzb2media_base_dir}/autoProcessMedia.cfg"
-      fi
+   fi
+   if [ "${headphones_enabled}" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia Headphones settings"
+      sed -i \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%host =.*%host = headphones%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%port =.*%port = 8181%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%web_root =.*%web_root = /headphones%" \
+         "${nzb2media_base_dir}/autoProcessMedia.cfg"
    fi
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure nzbToMedia download paths"
    sed -i \
