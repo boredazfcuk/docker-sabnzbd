@@ -1,3 +1,7 @@
+20200313
+
+ - Change: Log now displays OS version
+
 20200228
 
  - Change: nzbToMedia installation to working as expected. Now installs and configures sections OK
