@@ -5,7 +5,7 @@ Initialise(){
    lan_ip="$(hostname -i)"
    nzb2media_base_dir="/nzbToMedia"
    nzb2media_repo="clinton-hall/nzbToMedia"
-   echo -e "\n"
+   echo
    echo "$(date '+%c') INFO:    ***** Configuring SABnzbd container launch environment *****"
    echo "$(date '+%c') INFO:    $(cat /etc/*-release | grep "PRETTY_NAME" | sed 's/PRETTY_NAME=//g' | sed 's/"//g')"
    echo "$(date '+%c') INFO:    Local user: ${stack_user:=stackman}:${user_id:=1000}"
