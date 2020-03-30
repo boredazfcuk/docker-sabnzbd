@@ -154,7 +154,6 @@ Configure(){
          "${config_dir}/sabnzbd.ini"
 
    fi
-
    if [ "${sabnzbd_server_host}" ] && [ "${sabnzbd_server_host_port}" ] && [ "${sabnzbd_server_host_ssl}" ] && [ "${sabnzbd_server_host_user}" ] && [ "${sabnzbd_server_host_password}" ] && [ "${sabnzbd_server_host_connections}" ] && [ "${sabnzbd_server_host_priority}" ]; then
       sed -i \
          -e "/^\[\[UsenetHost\]\]/,/^\[.*\]/ s%^username =.*%username = ${sabnzbd_server_host_user}%" \
@@ -188,8 +187,8 @@ InstallnzbToMedia(){
          rm -r "${nzb2media_base_dir}"
       fi
       mkdir -p "${nzb2media_base_dir}"
-      echo "$(date '+%c') INFO:    ${nzb2media_repo} not detected, installing..."
       chown "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
+      echo "$(date '+%c') INFO:    ${nzb2media_repo} not detected, installing..."
       cd "${nzb2media_base_dir}"
       su "${stack_user}" -c "git clone --quiet --branch master https://github.com/${nzb2media_repo}.git ${nzb2media_base_dir}"
    fi
