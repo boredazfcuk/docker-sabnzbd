@@ -1,7 +1,7 @@
 FROM alpine:latest
 MAINTAINER boredazfcuk
 ARG build_dependencies="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
-ARG app_dependencies="git python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget"
+ARG app_dependencies="git ca-certificates python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget"
 ARG pip_dependencies="cheetah3 cryptography sabyenc"
 ARG app_repo="sabnzbd/sabnzbd"
 ARG parchive_repo="Parchive/par2cmdline"

@@ -195,22 +195,33 @@ InstallnzbToMedia(){
    if [ ! -f "${nzb2media_base_dir}/autoProcessMedia.cfg" ]; then
          cp "${nzb2media_base_dir}/autoProcessMedia.cfg.spec" "${nzb2media_base_dir}/autoProcessMedia.cfg"
    fi
-   echo "$(date '+%c') INFO:    Change nzbToMedia default configuration"
+}
+
+ConfigurenzbToMedia(){
+   echo "$(date '+%c') INFO:    Configure nzbToMedia general settings"
    sed -i \
       -e "/^\[General\]/,/^\[.*\]/ s%auto_update =.*%auto_update = 1%" \
       -e "/^\[General\]/,/^\[.*\]/ s%git_path =.*%git_path = /usr/bin/git%" \
       -e "/^\[General\]/,/^\[.*\]/ s%git_branch =.*%git_branch = master%" \
-      -e "/^\[General\]/,/^\[.*\]/ s%ffmpeg_path = *%ffmpeg_path = /usr/local/bin/ffmpeg%" \
+      -e "/^\[General\]/,/^\[.*\]/ s%ffmpeg_path.*%ffmpeg_path = /usr/local/bin/ffmpeg%" \
       -e "/^\[General\]/,/^\[.*\]/ s%safe_mode =.*%safe_mode = 1%" \
       -e "/^\[General\]/,/^\[.*\]/ s%no_extract_failed =.*%no_extract_failed = 1%" \
+      -e "/^\[General\]/,/^\[.*\]/ s%git_branch =.*%git_branch = master%" \
       "${nzb2media_base_dir}/autoProcessMedia.cfg"
+}
+
+N2MSABnzbd(){
    echo "$(date '+%c') INFO:    Configure nzbToMedia SABnzbd settings"
    sed -i \
       -e "/^\[Nzb\]/,/^\[.*\]/ s%clientAgent =.*%clientAgent = sabnzbd%" \
       -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_host =.*%sabnzbd_host = http://sabnzbd%" \
       -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 8080%" \
       -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${global_api_key}%" \
+      -e "/^\[Nzb\]/,/^\[.*\]/ s%default_downloadDirectory =.*%default_downloadDirectory = ${other_complete_dir}%" \
       "${nzb2media_base_dir}/autoProcessMedia.cfg"
+}
+
+N2MCouchPotato(){
    if [ "${couchpotato_enabled}" ]; then
       echo "$(date '+%c') INFO:    Configure nzbToMedia CouchPotato settings"
       sed -i \
@@ -220,8 +231,15 @@ InstallnzbToMedia(){
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%port =.*%port = 5050%" \
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%web_root =.*%web_root = /couchpotato%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%minSize =.*%minSize = 3000%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%delete_failed =.*%delete_failed = 1%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%delete_ignored =.*%delete_ignored = 1%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${movie_complete_dir}%" \
          "${nzb2media_base_dir}/autoProcessMedia.cfg"
    fi
+}
+
+N2MSickGear(){
    if [ "${sickgear_enabled}" ]; then
       echo "$(date '+%c') INFO:    Configure nzbToMedia SickGear settings"
       sed -i \
@@ -232,8 +250,15 @@ InstallnzbToMedia(){
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%fork =.*%fork = sickgear%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%web_root =.*%web_root = /sickgear%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%minSize =.*%minSize = 350%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%delete_failed =.*%delete_failed = 1%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%delete_ignored =.*%delete_ignored = 1%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${tv_complete_dir}%" \
          "${nzb2media_base_dir}/autoProcessMedia.cfg"
    fi
+}
+
+N2MHeadphones(){
    if [ "${headphones_enabled}" ]; then
       echo "$(date '+%c') INFO:    Configure nzbToMedia Headphones settings"
       sed -i \
@@ -243,15 +268,12 @@ InstallnzbToMedia(){
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%port =.*%port = 8181%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%web_root =.*%web_root = /headphones%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%minSize =.*%minSize = 10%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%delete_failed =.*%delete_failed = 1%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%delete_ignored =.*%delete_ignored = 1%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${music_complete_dir}%" \
          "${nzb2media_base_dir}/autoProcessMedia.cfg"
    fi
-   echo "$(date '+%c') INFO:    Configure nzbToMedia download paths"
-   sed -i \
-      -e "/^\[CouchPotato\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${movie_complete_dir}%" \
-      -e "/^\[SickBeard\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${tv_complete_dir}%" \
-      -e "/^\[Headphones\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${music_complete_dir}%" \
-      -e "/^\[Nzb\]/,/^\[.*\]/ s%default_downloadDirectory =.*%default_downloadDirectory = ${other_complete_dir}%" \
-      "${nzb2media_base_dir}/autoProcessMedia.cfg"
 }
 
 SetOwnerAndGroup(){
@@ -290,5 +312,10 @@ if [ ! -d "${config_dir}/admin" ]; then FirstRun; fi
 EnableSSL
 Configure
 InstallnzbToMedia
+ConfigurenzbToMedia
+N2MSABnzbd
+N2MCouchPotato
+N2MSickGear
+N2MHeadphones
 SetOwnerAndGroup
 LaunchSABnzbd
