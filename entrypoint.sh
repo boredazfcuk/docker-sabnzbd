@@ -52,11 +52,12 @@ FirstRun(){
    sleep 5
    echo "$(date '+%c') INFO:    Customise SABnzbd default config"
    sed -i \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^fast_fail = 0%fast_fail = 1%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^safe_postproc = 0%safe_postproc = 1%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^empty_postproc = 0%empty_postproc = 1%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^empty_postproc =.*%empty_postproc = 1%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^safe_postproc =.*%safe_postproc = 0%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^fail_hopeless_jobs = .*%fail_hopeless_jobs = 0%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^fast_fail =.*%fast_fail = 1%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^script_can_fail =.*%script_can_fail = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^notified_new_skin =.*%notified_new_skin = 2%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^fail_hopeless_jobs = .*%fail_hopeless_jobs = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^web_color =.*%web_color = gold%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^inet_exposure =.*%inet_exposure = 0%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^disable_api_key =.*%disable_api_key = 0%" \
@@ -74,14 +75,12 @@ FirstRun(){
       -e "/^\[misc\]/,/^\[.*\]/ s%^sfv_check =.*%sfv_check = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^movie_categories = .*%movie_categories = movie,%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^tv_categories =.*%tv_categories = tv,%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^fast_fail =.*%fast_fail = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^dirscan_speed =.*%dirscan_speed = 60%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^pre_check =.*%pre_check = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^web_dir =.*%web_dir = Plush%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^download_free =.*%download_free = 80G%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^par_option =.*%par_option = -N -t%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^pause_on_pwrar =.*%pause_on_pwrar = 1%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^movie_categories =.*%movie_categories = movie,%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^replace_spaces =.*%replace_spaces = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^replace_dots =.*%replace_dots = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^sanitize_safe =.*%sanitize_safe = 1%" \
@@ -90,34 +89,11 @@ FirstRun(){
       -e "/^\[misc\]/,/^\[.*\]/ s%^warn_dupl_jobs =.*%warn_dupl_jobs = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^enable_par_cleanup =.*%enable_par_cleanup = 1%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^flat_unpack =.*%flat_unpack = 1%" \
-      -e "/^\[misc\]/,/^\[.*\]/ s%^script_can_fail =.*%script_can_fail = 0%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^history_retention =.*%history_retention = 7d%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^ipv6_servers =.*%ipv6_servers = 0%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^ignore_empty_files =.*%ignore_empty_files = 1%" \
       "${config_dir}/sabnzbd.ini"
    sleep 1
-}
-
-EnableSSL(){
-   if [ ! -d "${config_dir}/https" ]; then
-      echo "$(date '+%c') INFO:    Initialise HTTPS"
-      mkdir -p "${config_dir}/https"
-      echo "$(date '+%c') INFO:    Generate server key"
-      openssl ecparam -genkey -name secp384r1 -out "${config_dir}/https/sabnzbd.key"
-      echo "$(date '+%c') INFO:    Generate certificate request"
-      openssl req -new -subj "/C=NA/ST=Global/L=Global/O=SABnzbd/OU=SABnzbd/CN=SABnzbd/" -key "${config_dir}/https/sabnzbd.key" -out "${config_dir}/https/sabnzbd.csr"
-      echo "$(date '+%c') INFO:    Generate certificate"
-      openssl x509 -req -sha256 -days 3650 -in "${config_dir}/https/sabnzbd.csr" -signkey "${config_dir}/https/sabnzbd.key" -out "${config_dir}/https/sabnzbd.crt" >/dev/null 2>&1
-   fi
-   if [ -f "${config_dir}/https/sabnzbd.key" ] && [ -f "${config_dir}/https/sabnzbd.crt" ]; then
-      echo "$(date '+%c') INFO:    Configure SABnzbd to use HTTPS"
-      sed -i \
-         -e "/^\[misc\]/,/^\[.*\]/ s%^https_key =.*%https_key = ${config_dir}/https/sabnzbd.key%" \
-         -e "/^\[misc\]/,/^\[.*\]/ s%^https_cert =.*%https_cert = ${config_dir}/https/sabnzbd.crt%" \
-         -e "/^\[misc\]/,/^\[.*\]/ s%^enable_https =.*%enable_https = 1%" \
-         -e "/^\[misc\]/,/^\[.*\]/ s%^https_port =.*%https_port = 9090%" \
-         "${config_dir}/sabnzbd.ini"
-   fi
 }
 
 Configure(){
@@ -190,7 +166,7 @@ InstallnzbToMedia(){
       chown "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
       echo "$(date '+%c') INFO:    ${nzb2media_repo} not detected, installing..."
       cd "${nzb2media_base_dir}"
-      su "${stack_user}" -c "git clone --quiet --branch master https://github.com/${nzb2media_repo}.git ${nzb2media_base_dir}"
+      su "${stack_user}" -c "git clone --branch master https://github.com/${nzb2media_repo}.git ${nzb2media_base_dir}"
    fi
    if [ ! -f "${nzb2media_base_dir}/autoProcessMedia.cfg" ]; then
          cp "${nzb2media_base_dir}/autoProcessMedia.cfg.spec" "${nzb2media_base_dir}/autoProcessMedia.cfg"
@@ -215,7 +191,7 @@ N2MSABnzbd(){
    sed -i \
       -e "/^\[Nzb\]/,/^\[.*\]/ s%clientAgent =.*%clientAgent = sabnzbd%" \
       -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_host =.*%sabnzbd_host = http://sabnzbd%" \
-      -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 8080%" \
+      -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_port.*%sabnzbd_port = 9090%" \
       -e "/^\[Nzb\]/,/^\[.*\]/ s%sabnzbd_apikey =.*%sabnzbd_apikey = ${global_api_key}%" \
       -e "/^\[Nzb\]/,/^\[.*\]/ s%default_downloadDirectory =.*%default_downloadDirectory = ${other_complete_dir}%" \
       "${nzb2media_base_dir}/autoProcessMedia.cfg"
@@ -229,7 +205,7 @@ N2MCouchPotato(){
          -e "/^\[CouchPotato\]/,/###### ADVANCED USE/ s%apikey =.*%apikey = ${global_api_key}%" \
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%host =.*%host = couchpotato%" \
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%port =.*%port = 5050%" \
-         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
+         -e "/^\[CouchPotato\]/,/^\[.*\]/ s%ssl =.*%ssl = 0%" \
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%web_root =.*%web_root = /couchpotato%" \
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%minSize =.*%minSize = 3000%" \
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%delete_failed =.*%delete_failed = 1%" \
@@ -247,7 +223,7 @@ N2MSickGear(){
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%host =.*%host = sickgear%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%port =.*%port = 8081%" \
-         -e "/^\[SickBeard\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%ssl =.*%ssl = 0%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%fork =.*%fork = sickgear%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%web_root =.*%web_root = /sickgear%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%minSize =.*%minSize = 350%" \
@@ -266,7 +242,7 @@ N2MHeadphones(){
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%apikey =.*%apikey = ${global_api_key}%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%host =.*%host = headphones%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%port =.*%port = 8181%" \
-         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%ssl =.*%ssl = 1%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%ssl =.*%ssl = 0%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%web_root =.*%web_root = /headphones%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%minSize =.*%minSize = 10%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%delete_failed =.*%delete_failed = 1%" \
@@ -309,7 +285,6 @@ Initialise
 CreateGroup
 CreateUser
 if [ ! -d "${config_dir}/admin" ]; then FirstRun; fi
-EnableSSL
 Configure
 InstallnzbToMedia
 ConfigurenzbToMedia
