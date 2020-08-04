@@ -92,11 +92,15 @@ FirstRun(){
       -e "/^\[misc\]/,/^\[.*\]/ s%^history_retention =.*%history_retention = 7d%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^ipv6_servers =.*%ipv6_servers = 0%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^ignore_empty_files =.*%ignore_empty_files = 1%" \
+      -e "/^\[misc\]/,/^\[.*\]/ s%^ignore_unrar_dates =.*%ignore_unrar_dates = 1%" \
       "${config_dir}/sabnzbd.ini"
    sleep 1
 }
 
 Configure(){
+   if [ -d "${nzb2media_base_dir}" ]; then
+      chown "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
+   fi
    sed -i \
       -e "/^\[misc\]/,/^\[.*\]/ s%^host =.*%host = ${lan_ip}%" \
       -e "/^\[misc\]/,/^\[.*\]/ s%^username = \".*\"%username = \"${stack_user}\"%" \
@@ -163,10 +167,11 @@ InstallnzbToMedia(){
          rm -r "${nzb2media_base_dir}"
       fi
       mkdir -p "${nzb2media_base_dir}"
-      chown "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
+      chown -R "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
       echo "$(date '+%c') INFO:    ${nzb2media_repo} not detected, installing..."
       cd "${nzb2media_base_dir}"
-      su "${stack_user}" -c "git clone --branch master https://github.com/${nzb2media_repo}.git ${nzb2media_base_dir}"
+      git clone --branch master https://github.com/${nzb2media_repo}.git ${nzb2media_base_dir}
+      chown -R "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
    fi
    if [ ! -f "${nzb2media_base_dir}/autoProcessMedia.cfg" ]; then
          cp "${nzb2media_base_dir}/autoProcessMedia.cfg.spec" "${nzb2media_base_dir}/autoProcessMedia.cfg"

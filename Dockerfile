@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.11
 MAINTAINER boredazfcuk
 ARG build_dependencies="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
 ARG app_dependencies="git ca-certificates python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget"
