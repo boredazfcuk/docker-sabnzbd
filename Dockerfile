@@ -1,8 +1,10 @@
-FROM alpine:3.11
+FROM alpine:3.12
 MAINTAINER boredazfcuk
-ARG build_dependencies="gcc python-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
-ARG app_dependencies="git ca-certificates python python3 py-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget"
-ARG pip_dependencies="cheetah3 cryptography sabyenc"
+
+# Version not used, increment to force rebuild
+ARG sabnzbd_version="3.0.0"
+ARG build_dependencies="gcc python3-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
+ARG app_dependencies="git ca-certificates python3 py3-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget"
 ARG app_repo="sabnzbd/sabnzbd"
 ARG parchive_repo="Parchive/par2cmdline"
 ENV config_dir="/config" \
@@ -19,7 +21,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${app_repo}" && \
    git clone -b master "https://github.com/${app_repo}.git" "${app_base_dir}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${app_repo} python dependencies" && \
    cd "${app_base_dir}" && \
-   pip install --upgrade pip --no-cache-dir ${pip_dependencies} && \
+   pip3 install --upgrade pip --no-cache-dir --requirement "${app_base_dir}/requirements.txt" && \
    "${app_base_dir}/tools/make_mo.py" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${parchive_repo}" && \
    temp_dir="$(mktemp -d)" && \
