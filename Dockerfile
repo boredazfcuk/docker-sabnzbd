@@ -35,6 +35,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${parchive_repo}" && \
    make check && \
    make install && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
+   ln -s /usr/bin/python3 /usr/bin/python && \
    apk del --no-progress --purge build-deps && \
    rm -rv "/root/.cache/pip" "${temp_dir}"
 
