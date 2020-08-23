@@ -21,6 +21,20 @@ Initialise(){
    echo "$(date '+%c') INFO:    NZB file backup directory: ${sabnzbd_file_backup_dir:=/storage/downloads/backup/sabnzbd/}"
 }
 
+CheckOpenVPNPIA(){
+   if [ "${openvpnpia_enabled}" ]; then
+      echo "$(date '+%c') INFO:    OpenVPNPIA is enabled. Wait for VPN to connect"
+      vpn_adapter="$(ip addr | grep tun.$ | awk '{print $7}')"
+      while [ -z "${vpn_adapter}" ]; do
+         vpn_adapter="$(ip addr | grep tun.$ | awk '{print $7}')"
+         sleep 5
+      done
+      echo "$(date '+%c') INFO:    VPN adapter available: ${vpn_adapter}"
+   else
+      echo "$(date '+%c') INFO:    OpenVPNPIA is not enabled"
+   fi
+}
+
 CreateGroup(){
    if [ -z "$(getent group "${sabnzbd_group}" | cut -d: -f3)" ]; then
       echo "$(date '+%c') INFO:    Group ID available, creating group"
@@ -287,6 +301,7 @@ LaunchSABnzbd(){
 
 ##### Script #####
 Initialise
+CheckOpenVPNPIA
 CreateGroup
 CreateUser
 if [ ! -d "${config_dir}/admin" ]; then FirstRun; fi
