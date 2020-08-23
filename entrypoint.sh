@@ -36,22 +36,45 @@ CheckOpenVPNPIA(){
 }
 
 CreateGroup(){
-   if [ -z "$(getent group "${sabnzbd_group}" | cut -d: -f3)" ]; then
-      echo "$(date '+%c') INFO:    Group ID available, creating group"
-      addgroup -g "${sabnzbd_group_id}" "${sabnzbd_group}"
-   elif [ ! "$(getent group "${sabnzbd_group}" | cut -d: -f3)" = "${sabnzbd_group_id}" ]; then
-      echo "$(date '+%c') ERROR:   Group group_id mismatch - exiting"
-      exit 1
+   if [ "$(grep -c "^${sabnzbd_group}:x:${sabnzbd_group_id}:" "/etc/group")" -eq 1 ]; then
+      echo "$(date '+%c') INFO:    Group, ${sabnzbd_group}:${sabnzbd_group_id}, already created"
+   else
+      if [ "$(grep -c "^${sabnzbd_group}:" "/etc/group")" -eq 1 ]; then
+         echo "$(date '+%c') ERROR:   Group name, ${sabnzbd_group}, already in use - exiting"
+         sleep 120
+         exit 1
+      elif [ "$(grep -c ":x:${sabnzbd_group_id}:" "/etc/group")" -eq 1 ]; then
+         if [ "${force_gid}" = "True" ]; then
+            group="$(grep ":x:${sabnzbd_group_id}:" /etc/group | awk -F: '{print $1}')"
+            echo "$(date '+%c') WARNING: Group id, ${sabnzbd_group_id}, already exists - continuing as force_gid variable has been set. Group name to use: ${sabnzbd_group}"
+         else
+            echo "$(date '+%c') ERROR:   Group id, ${sabnzbd_group_id}, already in use - exiting"
+            sleep 120
+            exit 1
+         fi
+      else
+         echo "$(date '+%c') INFO:    Creating group ${sabnzbd_group}:${sabnzbd_group_id}"
+         addgroup -g "${sabnzbd_group_id}" "${sabnzbd_group}"
+      fi
    fi
 }
 
 CreateUser(){
-   if [ -z "$(getent passwd "${stack_user}" | cut -d: -f3)" ]; then
-      echo "$(date '+%c') INFO:    User ID available, creating user"
-      adduser -s /bin/ash -D -G "${sabnzbd_group}" -u "${user_id}" "${stack_user}"
-   elif [ ! "$(getent passwd "${stack_user}" | cut -d: -f3)" = "${user_id}" ]; then
-      echo "$(date '+%c') ERROR:   User ID already in use - exiting"
-      exit 1
+   if [ "$(grep -c "^${stack_user}:x:${user_id}:${sabnzbd_group_id}" "/etc/passwd")" -eq 1 ]; then
+      echo "$(date '+%c') INFO     User, ${stack_user}:${user_id}, already created"
+   else
+      if [ "$(grep -c "^${stack_user}:" "/etc/passwd")" -eq 1 ]; then
+         echo "$(date '+%c') ERROR    User name, ${stack_user}, already in use - exiting"
+         sleep 120
+         exit 1
+      elif [ "$(grep -c ":x:${user_id}:$" "/etc/passwd")" -eq 1 ]; then
+         echo "$(date '+%c') ERROR    User id, ${user_id}, already in use - exiting"
+         sleep 120
+         exit 1
+      else
+         echo "$(date '+%c') INFO     Creating user ${stack_user}:${user_id}"
+         adduser -s /bin/ash -D -G "${sabnzbd_group}" -u "${user_id}" "${stack_user}" -h "/home/${stack_user}"
+      fi
    fi
 }
 
