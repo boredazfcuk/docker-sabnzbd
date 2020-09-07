@@ -10,7 +10,7 @@ ARG parchive_repo="Parchive/par2cmdline"
 ENV config_dir="/config" \
    app_base_dir="/SABnzbd"
 
-RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD STARTED *****" && \
+RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD STARTED FOR SABNZBD *****" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Create directories" && \
    mkdir -p "${app_base_dir}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install build dependencies" && \
