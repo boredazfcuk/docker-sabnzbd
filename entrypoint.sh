@@ -3,16 +3,18 @@
 ##### Functions #####
 Initialise(){
    lan_ip="$(hostname -i)"
+   default_gateway="$(ip route | grep "^default" | awk '{print $3}')"
    nzb2media_base_dir="/nzbToMedia"
    nzb2media_repo="clinton-hall/nzbToMedia"
    echo
    echo "$(date '+%c') INFO:    ***** Configuring SABnzbd container launch environment *****"
    echo "$(date '+%c') INFO:    $(cat /etc/*-release | grep "PRETTY_NAME" | sed 's/PRETTY_NAME=//g' | sed 's/"//g')"
-   echo "$(date '+%c') INFO:    Local user: ${stack_user:=stackman}:${user_id:=1000}"
+   echo "$(date '+%c') INFO:    Local user: ${stack_user:=stackman}:${stack_uid:=1000}"
    echo "$(date '+%c') INFO:    Password: ${stack_password:=Skibidibbydibyodadubdub}"
    echo "$(date '+%c') INFO:    Local group: ${sabnzbd_group:=sabnzbd}:${sabnzbd_group_id:=1000}"
    echo "$(date '+%c') INFO:    SABnzbd application directory: ${app_base_dir}"
    echo "$(date '+%c') INFO:    Listening IP Address: ${lan_ip}"
+   echo "$(date '+%c') INFO:    Docker host LAN IP subnet: ${host_lan_ip_subnet}"
    echo "$(date '+%c') INFO:    Movie complete directory: ${movie_complete_dir:=/storage/downloads/complete/movie/}"
    echo "$(date '+%c') INFO:    Music complete directory: ${music_complete_dir:=/storage/downloads/complete/music/}"
    echo "$(date '+%c') INFO:    Other downloads complete directory: ${other_complete_dir:=/storage/downloads/complete/other/}"
@@ -21,17 +23,24 @@ Initialise(){
    echo "$(date '+%c') INFO:    NZB file backup directory: ${sabnzbd_file_backup_dir:=/storage/downloads/backup/sabnzbd/}"
 }
 
-CheckOpenVPNPIA(){
-   if [ "${openvpnpia_enabled}" ]; then
-      echo "$(date '+%c') INFO:    OpenVPNPIA is enabled. Wait for VPN to connect"
-      vpn_adapter="$(ip addr | grep tun.$ | awk '{print $7}')"
+CheckPIANextGen(){
+   if [ "${pianextgen_enabled}" ]; then
+      echo "$(date '+%c') INFO:    PIANextGen is enabled. Wait for VPN to connect"
+      vpn_adapter="$(ip -o addr | grep tun. | awk '{print $2}')"
       while [ -z "${vpn_adapter}" ]; do
-         vpn_adapter="$(ip addr | grep tun.$ | awk '{print $7}')"
+         vpn_adapter="$(ip -o addr | grep tun. | awk '{print $2}')"
          sleep 5
       done
       echo "$(date '+%c') INFO:    VPN adapter available: ${vpn_adapter}"
    else
-      echo "$(date '+%c') INFO:    OpenVPNPIA is not enabled"
+      echo "$(date '+%c') INFO:    PIANextGen shared network stack is not enabled, configure container forwarding mode mode"
+      pianextgen_host="$(getent hosts pianextgen | awk '{print $1}')"
+      echo "$(date '+%c') INFO:    PIANextGen container IP address: ${pianextgen_host}"
+      echo "$(date '+%c') INFO:    Create default route via ${pianextgen_host}"
+      ip route del default 
+      ip route add default via "${pianextgen_host}"
+      echo "$(date '+%c') INFO:    Create additional route to Docker host network ${host_lan_ip_subnet} via ${default_gateway}"
+      ip route add "${host_lan_ip_subnet}" via "${default_gateway}"
    fi
 }
 
@@ -60,20 +69,20 @@ CreateGroup(){
 }
 
 CreateUser(){
-   if [ "$(grep -c "^${stack_user}:x:${user_id}:${sabnzbd_group_id}" "/etc/passwd")" -eq 1 ]; then
-      echo "$(date '+%c') INFO     User, ${stack_user}:${user_id}, already created"
+   if [ "$(grep -c "^${stack_user}:x:${stack_uid}:${sabnzbd_group_id}" "/etc/passwd")" -eq 1 ]; then
+      echo "$(date '+%c') INFO     User, ${stack_user}:${stack_uid}, already created"
    else
       if [ "$(grep -c "^${stack_user}:" "/etc/passwd")" -eq 1 ]; then
          echo "$(date '+%c') ERROR    User name, ${stack_user}, already in use - exiting"
          sleep 120
          exit 1
-      elif [ "$(grep -c ":x:${user_id}:$" "/etc/passwd")" -eq 1 ]; then
-         echo "$(date '+%c') ERROR    User id, ${user_id}, already in use - exiting"
+      elif [ "$(grep -c ":x:${stack_uid}:$" "/etc/passwd")" -eq 1 ]; then
+         echo "$(date '+%c') ERROR    User id, ${stack_uid}, already in use - exiting"
          sleep 120
          exit 1
       else
-         echo "$(date '+%c') INFO     Creating user ${stack_user}:${user_id}"
-         adduser -s /bin/ash -D -G "${sabnzbd_group}" -u "${user_id}" "${stack_user}" -h "/home/${stack_user}"
+         echo "$(date '+%c') INFO     Creating user ${stack_user}:${stack_uid}"
+         adduser -s /bin/ash -D -G "${sabnzbd_group}" -u "${stack_uid}" "${stack_user}" -h "/home/${stack_user}"
       fi
    fi
 }
@@ -161,7 +170,7 @@ Configure(){
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToSickBeard.py%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
       "${config_dir}/sabnzbd.ini"
-   if [ "${sabnzbd_enabled}" ]; then
+   if getent hosts sabnzbd >/dev/null 2>&1; then
       sed -i \
          -e "/^\[misc\]/,/^\[.*\]/ s%^url_base =.*%url_base = /sabnzbd%" \
          "${config_dir}/sabnzbd.ini"
@@ -240,7 +249,7 @@ N2MSABnzbd(){
 }
 
 N2MCouchPotato(){
-   if [ "${couchpotato_enabled}" ]; then
+   if getent hosts couchpotato >/dev/null 2>&1; then
       echo "$(date '+%c') INFO:    Configure nzbToMedia CouchPotato settings"
       sed -i \
          -e "/^\[CouchPotato\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
@@ -258,7 +267,7 @@ N2MCouchPotato(){
 }
 
 N2MSickGear(){
-   if [ "${sickgear_enabled}" ]; then
+   if getent hosts sickgear >/dev/null 2>&1; then
       echo "$(date '+%c') INFO:    Configure nzbToMedia SickGear settings"
       sed -i \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
@@ -277,7 +286,7 @@ N2MSickGear(){
 }
 
 N2MHeadphones(){
-   if [ "${headphones_enabled}" ]; then
+   if getent hosts headphones >/dev/null 2>&1; then
       echo "$(date '+%c') INFO:    Configure nzbToMedia Headphones settings"
       sed -i \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%enabled = .*%enabled = 1%" \
@@ -286,7 +295,7 @@ N2MHeadphones(){
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%port =.*%port = 8181%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%ssl =.*%ssl = 0%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%web_root =.*%web_root = /headphones%" \
-         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%minSize =.*%minSize = 10%" \
+         -e "/^\[HeadPhones\]/,/^\[.*\]/ s%minSize =.*%minSize = 0%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%delete_failed =.*%delete_failed = 1%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%delete_ignored =.*%delete_ignored = 1%" \
          -e "/^\[HeadPhones\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${music_complete_dir}%" \
@@ -298,6 +307,7 @@ SetOwnerAndGroup(){
    sabnzbd_watch_dir="$(grep dirscan_dir "${config_dir}/sabnzbd.ini" | awk '{print $3}')"
    sabnzbd_incoming_dir="$(grep download_dir "${config_dir}/sabnzbd.ini" | awk '{print $3}')"
    sabnzbd_complete_dir="$(grep complete_dir "${config_dir}/sabnzbd.ini" | awk '{print $3}')"
+   sabnzbd_backup_dir="$(grep nzb_backup_dir "${config_dir}/sabnzbd.ini" | awk '{print $3}')"
    echo "$(date '+%c') INFO:    Correct owner and group of syncronised files, if required"
    find "${config_dir}" ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    find "${config_dir}" ! -group "${sabnzbd_group}" -exec chgrp "${sabnzbd_group}" {} \;
@@ -314,6 +324,9 @@ SetOwnerAndGroup(){
    if [ "${sabnzbd_complete_dir}" ] && [ -d "${sabnzbd_complete_dir}" ]; then
       find "${sabnzbd_complete_dir}"  -type d ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
    fi
+   if [ "${sabnzbd_backup_dir}" ] && [ -d "${sabnzbd_backup_dir}" ]; then
+      find "${sabnzbd_backup_dir}"  -type d ! -user "${stack_user}" -exec chown "${stack_user}" {} \;
+   fi
 }
 
 LaunchSABnzbd(){
@@ -324,7 +337,7 @@ LaunchSABnzbd(){
 
 ##### Script #####
 Initialise
-CheckOpenVPNPIA
+CheckPIANextGen
 CreateGroup
 CreateUser
 if [ ! -d "${config_dir}/admin" ]; then FirstRun; fi

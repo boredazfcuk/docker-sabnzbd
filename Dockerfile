@@ -1,10 +1,10 @@
-FROM alpine:3.12
+FROM alpine:3.13
 MAINTAINER boredazfcuk
 
 # Version not used, increment to force rebuild
-ARG sabnzbd_version="3.0.1"
+ARG sabnzbd_version="3.1.1"
 ARG build_dependencies="gcc python3-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
-ARG app_dependencies="git ca-certificates python3 py3-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget"
+ARG app_dependencies="git ca-certificates python3 py3-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget py3-cryptography py3-cffi"
 ARG app_repo="sabnzbd/sabnzbd"
 ARG parchive_repo="Parchive/par2cmdline"
 ENV config_dir="/config" \
@@ -38,7 +38,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${parchive_repo}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
    ln -s /usr/bin/python3 /usr/bin/python && \
    apk del --no-progress --purge build-deps && \
-   rm -rv "/root/.cache/pip" "${temp_dir}"
+   rm -rv "${temp_dir}"
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY healthcheck.sh /usr/local/bin/healthcheck.sh
