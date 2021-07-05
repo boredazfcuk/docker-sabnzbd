@@ -2,7 +2,7 @@ FROM alpine:3.13.5
 MAINTAINER boredazfcuk
 
 # Version not used. Increment to force rebuild.
-ARG sabnzbd_version="3.3.0"
+ARG sabnzbd_version="3.3.1"
 ARG build_dependencies="gcc python3-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
 ARG app_dependencies="git ca-certificates python3 py3-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget py3-cryptography py3-cffi"
 ARG app_repo="sabnzbd/sabnzbd"
