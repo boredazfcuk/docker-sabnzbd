@@ -1,4 +1,4 @@
-FROM alpine:3.13.5
+FROM alpine:3.14
 MAINTAINER boredazfcuk
 
 # Version not used. Increment to force rebuild.
