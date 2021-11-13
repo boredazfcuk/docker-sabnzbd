@@ -1,5 +1,10 @@
+20211021
+
+ - Change: Rebuild with Alpine Linux 3.14.2 and SABnzbd 3.4.2
+ - Change: Changed priority of categories to `high`, as previous setting of `force` would ignore the 15 minute delay which allows propagation to complete. This was leading to failed downloads.
+
 20200829
-   -  Change: Rebuild with sabnzbd 3.0.1
+ -  Change: Rebuild with sabnzbd 3.0.1
 
 20200823
 

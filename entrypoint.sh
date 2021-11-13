@@ -37,7 +37,7 @@ CheckPIANextGen(){
       pianextgen_host="$(getent hosts pianextgen | awk '{print $1}')"
       echo "$(date '+%c') INFO:    PIANextGen container IP address: ${pianextgen_host}"
       echo "$(date '+%c') INFO:    Create default route via ${pianextgen_host}"
-      ip route del default 
+      ip route del default
       ip route add default via "${pianextgen_host}"
       echo "$(date '+%c') INFO:    Create additional route to Docker host network ${host_lan_ip_subnet} via ${default_gateway}"
       ip route add "${host_lan_ip_subnet}" via "${default_gateway}"
@@ -160,15 +160,15 @@ Configure(){
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${movie_complete_dir}%" \
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^name =.*%name = movie%" \
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToCouchPotato.py%" \
-      -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
+      -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^priority =.*%priority = 1%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${music_complete_dir}%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^name =.*%name = music%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToHeadPhones.py%" \
-      -e "/^\[\[music\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
+      -e "/^\[\[music\]\]/,/^\[.*\]/ s%^priority =.*%priority = 1%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${tv_complete_dir}%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^name =.*%name = tv%" \
-      -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToSickBeard.py%" \
-      -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^priority =.*%priority = 2%" \
+      -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^script =.*%script = sabToSickGear.py%" \
+      -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^priority =.*%priority = 1%" \
       "${config_dir}/sabnzbd.ini"
    if getent hosts sabnzbd >/dev/null 2>&1; then
       sed -i \
@@ -216,11 +216,26 @@ InstallnzbToMedia(){
       chown -R "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
       echo "$(date '+%c') INFO:    ${nzb2media_repo} not detected, installing..."
       cd "${nzb2media_base_dir}"
-      git clone --branch master https://github.com/${nzb2media_repo}.git ${nzb2media_base_dir}
+      git clone --branch nightly "https://github.com/${nzb2media_repo}.git" "${nzb2media_base_dir}"
       chown -R "${stack_user}":"${sabnzbd_group}" "${nzb2media_base_dir}"
    fi
    if [ ! -f "${nzb2media_base_dir}/autoProcessMedia.cfg" ]; then
          cp "${nzb2media_base_dir}/autoProcessMedia.cfg.spec" "${nzb2media_base_dir}/autoProcessMedia.cfg"
+   fi
+}
+
+InstallSickGearScripts(){
+   if [ ! -f "${nzb2media_base_dir}/sabToSickGear.py" ] || [ ! -f "${nzb2media_base_dir}/autoProcessTV.py" ]; then
+      local sickgear_repo sickgear_temp_dir
+      sickgear_repo="SickGear/SickGear"
+      sickgear_temp_dir="$(mktemp -d)"
+      echo "$(date '+%c') INFO:    Clone ${sickgear_repo} repo"
+      git clone -b master "https://github.com/${sickgear_repo}.git" "${sickgear_temp_dir}"
+      echo "$(date '+%c') INFO:    Copy AutoProcessTV scripts"
+      cp "${sickgear_temp_dir}/autoProcessTV/autoProcessTV.py" "${nzb2media_base_dir}"
+      cp "${sickgear_temp_dir}/autoProcessTV/sabToSickGear.py" "${nzb2media_base_dir}"
+      echo "$(date '+%c') INFO:    Remove cloned ${sickgear_repo} repo"
+      rm -r "${sickgear_temp_dir}"
    fi
 }
 
@@ -275,13 +290,25 @@ N2MSickGear(){
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%host =.*%host = sickgear%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%port =.*%port = 8081%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%ssl =.*%ssl = 0%" \
-         -e "/^\[SickBeard\]/,/^\[.*\]/ s%fork =.*%fork = sickgear%" \
+         -e "/^\[SickBeard\]/,/^\[.*\]/ s%fork =.*%fork = auto%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%web_root =.*%web_root = /sickgear%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%minSize =.*%minSize = 350%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%delete_failed =.*%delete_failed = 1%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%delete_ignored =.*%delete_ignored = 1%" \
          -e "/^\[SickBeard\]/,/^\[.*\]/ s%watch_dir =.*%watch_dir = ${tv_complete_dir}%" \
          "${nzb2media_base_dir}/autoProcessMedia.cfg"
+      if [ ! -f "${nzb2media_base_dir}/autoProcessTV.cfg" ]; then
+         {
+            echo '[SickBeard]'
+            echo 'host=sickgear'
+            echo 'port=8081'
+            echo "username=${stack_user}"
+            echo "password=${stack_password}"
+            echo 'web_root=/sickgear'
+            echo 'ssl=0'
+         } > "${nzb2media_base_dir}/autoProcessTV.cfg"
+      fi
+
    fi
 }
 
@@ -343,6 +370,7 @@ CreateUser
 if [ ! -d "${config_dir}/admin" ]; then FirstRun; fi
 Configure
 InstallnzbToMedia
+InstallSickGearScripts
 ConfigurenzbToMedia
 N2MSABnzbd
 N2MCouchPotato

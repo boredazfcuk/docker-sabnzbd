@@ -1,8 +1,8 @@
-FROM alpine:3.14
+FROM alpine:3.14.2
 MAINTAINER boredazfcuk
 
 # Version not used. Increment to force rebuild.
-ARG sabnzbd_version="3.3.1"
+ARG sabnzbd_version="3.4.2"
 ARG build_dependencies="gcc python3-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
 ARG app_dependencies="git ca-certificates python3 py3-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget py3-cryptography py3-cffi"
 ARG app_repo="sabnzbd/sabnzbd"
@@ -21,7 +21,7 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${app_repo}" && \
    git clone -b master "https://github.com/${app_repo}.git" "${app_base_dir}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${app_repo} python dependencies" && \
    cd "${app_base_dir}" && \
-   pip3 install --upgrade pip --no-cache-dir wheel && \
+   pip3 install --upgrade pip --no-cache-dir wheel requests && \
    pip3 install --no-cache-dir --requirement "${app_base_dir}/requirements.txt" && \
    "${app_base_dir}/tools/make_mo.py" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${parchive_repo}" && \
