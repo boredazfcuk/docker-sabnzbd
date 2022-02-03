@@ -2,7 +2,7 @@ FROM alpine:3.14.2
 MAINTAINER boredazfcuk
 
 # Version not used. Increment to force rebuild.
-ARG sabnzbd_version="3.4.2"
+ARG sabnzbd_version="3.5"
 ARG build_dependencies="gcc python3-dev musl-dev libffi-dev openssl-dev automake autoconf g++ make"
 ARG app_dependencies="git ca-certificates python3 py3-pip tzdata libgomp unrar unzip p7zip ffmpeg openssl ca-certificates wget py3-cryptography py3-cffi"
 ARG app_repo="sabnzbd/sabnzbd"
@@ -38,15 +38,12 @@ echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install ${parchive_repo}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Clean up" && \
    ln -s /usr/bin/python3 /usr/bin/python && \
    apk del --no-progress --purge build-deps && \
-   rm -rv "${temp_dir}"
-
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-COPY healthcheck.sh /usr/local/bin/healthcheck.sh
-COPY sabnzbd.ini /config/sabnzbd.ini
-
-RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | Set permissions on scripts" && \
-   chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh && \
+   rm -rv "${temp_dir}" && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD COMPLETE *****"
+
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --chmod=0755 healthcheck.sh /usr/local/bin/healthcheck.sh
+COPY sabnzbd.ini /config/sabnzbd.ini
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=10s \
    CMD /usr/local/bin/healthcheck.sh

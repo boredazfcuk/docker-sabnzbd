@@ -21,6 +21,8 @@ Initialise(){
    echo "$(date '+%c') INFO:    TV complete directory: ${tv_complete_dir:=/storage/downloads/complete/tv/}"
    echo "$(date '+%c') INFO:    Watch directory: ${sabnzbd_watch_dir=/storage/downloads/watch/sabnzbd/}"
    echo "$(date '+%c') INFO:    NZB file backup directory: ${sabnzbd_file_backup_dir:=/storage/downloads/backup/sabnzbd/}"
+   echo "$(date '+%c') INFO:    Removing files from backup directory over 90 days old...}"
+   find "${sabnzbd_file_backup_dir}" -mtime +90 -delete;
 }
 
 CheckPIANextGen(){
@@ -159,17 +161,20 @@ Configure(){
       -e "/^\[misc\]/,/^\[.*\]/ s%^api_key =.*%api_key = ${global_api_key}%" \
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${movie_complete_dir}%" \
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^name =.*%name = movie%" \
-      -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToCouchPotato.py%" \
       -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^priority =.*%priority = 1%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${music_complete_dir}%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^name =.*%name = music%" \
-      -e "/^\[\[music\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToHeadPhones.py%" \
       -e "/^\[\[music\]\]/,/^\[.*\]/ s%^priority =.*%priority = 1%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^dir =.*%dir = ${tv_complete_dir}%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^name =.*%name = tv%" \
-      -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^script =.*%script = sabToSickGear.py%" \
       -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^priority =.*%priority = 1%" \
       "${config_dir}/sabnzbd.ini"
+#
+#      -e "/^\[\[tv\]\]/,/^\[.*\]/ s%^script =.*%script = sabToSickGear.py%" \
+#      -e "/^\[\[music\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToHeadPhones.py%" \
+#      -e "/^\[\[movie\]\]/,/^\[.*\]/ s%^script =.*%script = nzbToCouchPotato.py%" \
+#
+
    if getent hosts sabnzbd >/dev/null 2>&1; then
       sed -i \
          -e "/^\[misc\]/,/^\[.*\]/ s%^url_base =.*%url_base = /sabnzbd%" \
